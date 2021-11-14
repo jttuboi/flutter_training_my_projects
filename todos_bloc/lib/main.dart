@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:todos_bloc/todos/todos.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const App());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class App extends StatelessWidget {
+  const App({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Container(),
+      themeMode: ThemeMode.dark,
+      darkTheme: ThemeData.dark(),
+      home: const TodosPage(),
     );
   }
 }
