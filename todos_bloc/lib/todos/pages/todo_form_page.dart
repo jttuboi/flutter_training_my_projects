@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:todos_bloc/todos/todos.dart';
 
 class TodoFormPage extends StatefulWidget {
-  const TodoFormPage({Todo? todo, Key? key})
-      : _todo = todo ?? Todo.empty,
+  const TodoFormPage._({required Todo todo, Key? key})
+      : _todo = todo,
         super(key: key);
+
+  static Route route({Todo? todo}) {
+    return MaterialPageRoute(builder: (context) => TodoFormPage._(todo: todo ?? Todo.empty));
+  }
 
   final Todo _todo;
 

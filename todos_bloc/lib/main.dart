@@ -13,7 +13,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       themeMode: ThemeMode.dark,
       darkTheme: ThemeData.dark(),
-      home: const TodosPage(),
+      home: TodosPage(),
     );
   }
 }

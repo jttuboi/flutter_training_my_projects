@@ -2,14 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:todos_bloc/todos/todos.dart';
 
 class TodoTile extends StatelessWidget {
-  const TodoTile({required Todo todo, required Function(bool completed) onChecked, required Function() onUndo, Key? key})
-      : _todo = todo,
+  const TodoTile({
+    required Todo todo,
+    required Function(bool completed) onChecked,
+    required Function(Todo todoDeleted) onDelete,
+    required Function() onUndo,
+    Key? key,
+  })  : _todo = todo,
         _onChecked = onChecked,
+        _onDelete = onDelete,
         _onUndo = onUndo,
         super(key: key);
 
   final Todo _todo;
   final Function(bool) _onChecked;
+  final Function(Todo) _onDelete;
   final Function() _onUndo;
 
   @override
@@ -17,36 +24,23 @@ class TodoTile extends StatelessWidget {
     return Dismissible(
       key: GlobalKey(),
       onDismissed: (direction) {
-        print('== delete todo from todos');
+        _onDelete(_todo);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('deleted "${_todo.title}"'),
           action: SnackBarAction(
             label: 'undo',
-            onPressed: () {
-              print('== undo delete todo from todos');
-              _onUndo();
-            },
+            onPressed: _onUndo,
           ),
         ));
       },
       child: ListTile(
         leading: Checkbox(
           value: _todo.completed,
-          onChanged: (value) {
-            print('== check/uncheck todo');
-            _onChecked(value!);
-          },
+          onChanged: (value) => _onChecked(value!),
         ),
         title: Text(_todo.title),
         subtitle: Text(_todo.subtitle),
-        onTap: () {
-          print('== edit todo');
-          Navigator.push(context, MaterialPageRoute(
-            builder: (context) {
-              return TodoDetailPage(todo: _todo);
-            },
-          ));
-        },
+        onTap: () => Navigator.push(context, TodoDetailPage.route(todo: _todo)),
       ),
     );
   }

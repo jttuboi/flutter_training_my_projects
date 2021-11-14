@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:todos_bloc/todos/todos.dart';
 
 class TodoDetailPage extends StatelessWidget {
-  const TodoDetailPage({required Todo todo, Key? key})
+  const TodoDetailPage._({required Todo todo, Key? key})
       : _todo = todo,
         super(key: key);
+
+  static Route route({required Todo todo}) {
+    return MaterialPageRoute(builder: (context) => TodoDetailPage._(todo: todo));
+  }
 
   final Todo _todo;
 
@@ -31,7 +35,7 @@ class TodoDetailPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Checkbox(
-                value: true,
+                value: _todo.completed,
                 onChanged: (value) {
                   print('== check todo from todo details');
                 },
@@ -54,14 +58,7 @@ class TodoDetailPage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          print('== edit todo from todo details');
-          Navigator.push(context, MaterialPageRoute(
-            builder: (context) {
-              return TodoFormPage(todo: _todo);
-            },
-          ));
-        },
+        onPressed: () => Navigator.push(context, TodoFormPage.route(todo: _todo)),
         child: const Icon(Icons.edit),
       ),
     );

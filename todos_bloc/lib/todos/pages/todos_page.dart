@@ -1,15 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todos_bloc/todos/todos.dart';
 
-class TodosPage extends StatefulWidget {
-  const TodosPage({Key? key}) : super(key: key);
+class TodosPage extends StatelessWidget {
+  TodosPage({Key? key}) : super(key: key);
+
+  final _todosRepository = TodosRepository();
 
   @override
-  State<TodosPage> createState() => _TodosPageState();
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => StatsBloc(todosRepository: _todosRepository)),
+        BlocProvider(create: (context) => TodosBloc(todosRepository: _todosRepository)..add(TodosTabOpened())),
+        BlocProvider(
+          create: (context) => TabsBloc(
+            todosRepository: _todosRepository,
+            statsBloc: BlocProvider.of<StatsBloc>(context),
+            todosBloc: BlocProvider.of<TodosBloc>(context),
+          ),
+        ),
+      ],
+      child: const _TodosView(),
+    );
+  }
 }
 
-class _TodosPageState extends State<TodosPage> {
-  int _tabIndex = 0;
+class _TodosView extends StatelessWidget {
+  const _TodosView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,73 +35,92 @@ class _TodosPageState extends State<TodosPage> {
       appBar: AppBar(
         title: const Text('Todos'),
         actions: [
-          PopupMenuButton(
-            icon: const Icon(Icons.filter_list),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                  onTap: () {
-                    print('== show all');
-                  },
-                  child: const Text('Show all')),
-              PopupMenuItem(
-                  onTap: () {
-                    print('== show active');
-                  },
-                  child: const Text('Show active')),
-              PopupMenuItem(
-                  onTap: () {
-                    print('== show completed');
-                  },
-                  child: const Text('Show completed')),
-            ],
-          ),
+          if (context.read<TabsBloc>().state.isTodosTab)
+            PopupMenuButton(
+              icon: const Icon(Icons.filter_list),
+              itemBuilder: (context) {
+                return [
+                  PopupMenuItem(
+                    onTap: () => context.read<TodosBloc>().add(ShowAllTodos()),
+                    child: const Text('Show all'),
+                  ),
+                  PopupMenuItem(
+                    onTap: () => context.read<TodosBloc>().add(ShowActiveTodos()),
+                    child: const Text('Show active'),
+                  ),
+                  PopupMenuItem(
+                    onTap: () => context.read<TodosBloc>().add(ShowCompletedTodos()),
+                    child: const Text('Show completed'),
+                  ),
+                ];
+              },
+            ),
           PopupMenuButton(
             icon: const Icon(Icons.more_horiz),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                  onTap: () {
-                    print('== mark all completed');
-                  },
-                  child: const Text('Mark all completed')),
-              PopupMenuItem(
-                  onTap: () {
-                    print('== mark all incompleted');
-                  },
-                  child: const Text('Mark all incompleted')),
-              PopupMenuItem(
-                  onTap: () {
-                    print('== clear completed');
-                  },
-                  child: const Text('Clear completed')),
-            ],
+            itemBuilder: (context) {
+              final hasIncomplete = context.read<TabsBloc>().state.hasIncomplete;
+              return [
+                PopupMenuItem(
+                  onTap: () => context.read<TabsBloc>().add(hasIncomplete ? MarkAllCompleted() : MarkAllIncompleted()),
+                  child: hasIncomplete ? const Text('Mark all completed') : const Text('Mark all incompleted'),
+                ),
+                PopupMenuItem(
+                  onTap: () => context.read<TabsBloc>().add(ClearCompleted()),
+                  child: const Text('Clear completed'),
+                ),
+              ];
+            },
           ),
         ],
       ),
-      body: _tabIndex == 0 ? TodosTab() : StatsTab(completedTodos: 4, activeTodos: 5),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _tabIndex,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Todos'),
-          BottomNavigationBarItem(icon: Icon(Icons.show_chart), label: 'Stats'),
-        ],
-        onTap: (tabIndex) {
-          print(tabIndex);
-          setState(() {
-            _tabIndex = tabIndex;
-          });
-        },
-      ),
+      body: const TabsBody(),
+      bottomNavigationBar: const TabsBar(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          print('== add todo from todos');
-          Navigator.push(context, MaterialPageRoute(
-            builder: (context) {
-              return const TodoFormPage();
-            },
-          ));
-        },
+        onPressed: () => Navigator.push(context, TodoFormPage.route()),
         child: const Icon(Icons.add),
       ),
     );
+  }
+}
+
+class TabsBody extends StatelessWidget {
+  const TabsBody({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<TabsBloc, TabsState>(
+      builder: (context, state) {
+        return state.isTodosTab ? const TodosTab() : const StatsTab();
+      },
+    );
+  }
+}
+
+class TabsBar extends StatelessWidget {
+  const TabsBar({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<TabsBloc, TabsState>(
+      builder: (context, state) {
+        return BottomNavigationBar(
+          currentIndex: state.currentTabIndex,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Todos'),
+            BottomNavigationBarItem(icon: Icon(Icons.show_chart), label: 'Stats'),
+          ],
+          onTap: (tabIndex) {
+            _forceHideSnackBarWhenChangeToStats(tabIndex, context);
+            context.read<TabsBloc>().add(TabChanged(tabIndex: tabIndex));
+          },
+        );
+      },
+    );
+  }
+
+  void _forceHideSnackBarWhenChangeToStats(int tabIndex, BuildContext context) {
+    if (tabIndex == 1) {
+      ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    }
   }
 }
