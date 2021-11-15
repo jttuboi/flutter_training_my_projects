@@ -1,6 +1,5 @@
 part of 'tabs_bloc.dart';
 
-@immutable
 class TabsState extends Equatable {
   const TabsState({
     this.isTodosTab = true,

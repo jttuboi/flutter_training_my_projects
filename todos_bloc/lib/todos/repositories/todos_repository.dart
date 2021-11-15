@@ -23,42 +23,39 @@ abstract class ITodosRepository {
   Future<void> markAllToIncomplete();
 
   Future<void> clearAllCompleted();
+
+  // ignore: avoid_positional_boolean_parameters
+  Future<void> checkTodo(Todo todo, bool isCompleted);
 }
 
 class TodosRepository implements ITodosRepository {
-  List<Todo> _todos = [
-    Todo(id: 'qwe', title: 'lavar louça', subtitle: 'não esquecer de guarda-los', completed: true),
-    Todo(id: 'asd', title: 'lavar louça 2', subtitle: 'não esquecer de guarda-los 2', completed: true),
-    Todo(id: 'zxc', title: 'estudar bloc', subtitle: 'não esquecer de testar', completed: false),
-    Todo(id: 'rty', title: 'estudar bloc 2', subtitle: 'não esquecer de testar 2', completed: false),
-  ];
+  TodosRepository({required IDatabaseService databaseService}) : _databaseService = databaseService;
+
+  final IDatabaseService _databaseService;
 
   @override
   Future<List<Todo>> getTodos() async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    return List.from(_todos);
+    return _databaseService.getTodos();
   }
 
   @override
   Future<List<Todo>> getIncompleteTodos() async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    return _todos.where((todo) => !todo.completed).toList();
+    return _databaseService.getIncompleteTodos();
   }
 
   @override
   Future<List<Todo>> getCompleteTodos() async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    return _todos.where((todo) => todo.completed).toList();
+    return _databaseService.getCompleteTodos();
   }
 
   @override
   Future<Map<String, int>> countTodosSituation() async {
-    await Future.delayed(const Duration(milliseconds: 100));
+    final todos = await _databaseService.getTodos();
 
     var completeQuantity = 0;
     var incompleteQuantity = 0;
 
-    for (final todo in _todos) {
+    for (final todo in todos) {
       if (todo.completed) {
         completeQuantity++;
       } else {
@@ -74,47 +71,37 @@ class TodosRepository implements ITodosRepository {
 
   @override
   Future<void> deleteTodo(Todo todo) async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    _todos.remove(todo);
+    await _databaseService.deleteTodo(todo);
   }
 
   @override
   Future<void> addTodo(Todo todo) async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    _todos.add(todo);
+    await _databaseService.saveTodo(todo.copyWith(completed: false));
   }
 
   @override
   Future<bool> hasIncomplete() async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    return _todos.fold<bool>(false, (previousValue, todo) => previousValue || !todo.completed);
+    final todos = await _databaseService.getTodos();
+    return todos.fold<bool>(false, (previousValue, todo) => previousValue || !todo.completed);
   }
 
   @override
   Future<void> markAllToComplete() async {
-    await Future.delayed(const Duration(milliseconds: 100));
-
-    final newTodos = <Todo>[];
-    for (final todo in _todos) {
-      newTodos.add(todo.copyWith(completed: true));
-    }
-    _todos = newTodos;
+    await _databaseService.markAllTodos(completed: true);
   }
 
   @override
   Future<void> markAllToIncomplete() async {
-    await Future.delayed(const Duration(milliseconds: 100));
-
-    final newTodos = <Todo>[];
-    for (final todo in _todos) {
-      newTodos.add(todo.copyWith(completed: false));
-    }
-    _todos = newTodos;
+    await _databaseService.markAllTodos(completed: false);
   }
 
   @override
   Future<void> clearAllCompleted() async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    _todos.removeWhere((todo) => todo.completed);
+    await _databaseService.clearAllCompleted();
+  }
+
+  @override
+  Future<void> checkTodo(Todo todo, bool isCompleted) async {
+    await _databaseService.checkTodo(todo, isCompleted);
   }
 }

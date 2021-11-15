@@ -3,9 +3,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todos_bloc/todos/todos.dart';
 
 class TodosPage extends StatelessWidget {
-  TodosPage({Key? key}) : super(key: key);
+  const TodosPage._({required ITodosRepository todosRepository, Key? key})
+      : _todosRepository = todosRepository,
+        super(key: key);
 
-  final _todosRepository = TodosRepository();
+  static const routeName = '/';
+  static Route route({required TodosRepository todosRepository}) {
+    return MaterialPageRoute(builder: (context) => TodosPage._(todosRepository: todosRepository));
+  }
+
+  final ITodosRepository _todosRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +42,7 @@ class _TodosView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Todos'),
         actions: [
-          if (context.read<TabsBloc>().state.isTodosTab)
+          if (context.watch<TabsBloc>().state.isTodosTab)
             PopupMenuButton(
               icon: const Icon(Icons.filter_list),
               itemBuilder: (context) {
@@ -76,7 +83,14 @@ class _TodosView extends StatelessWidget {
       body: const TabsBody(),
       bottomNavigationBar: const TabsBar(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(context, TodoFormPage.route()),
+        onPressed: () async {
+          await Navigator.pushNamed(context, TodoFormPage.routeName, arguments: {
+            'onSaved': (todo) {
+              Navigator.pop(context);
+              context.read<TodosBloc>().add(TodoAdded(todo: todo));
+            },
+          });
+        },
         child: const Icon(Icons.add),
       ),
     );
@@ -89,9 +103,7 @@ class TabsBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<TabsBloc, TabsState>(
-      builder: (context, state) {
-        return state.isTodosTab ? const TodosTab() : const StatsTab();
-      },
+      builder: (context, state) => state.isTodosTab ? const TodosTab() : const StatsTab(),
     );
   }
 }

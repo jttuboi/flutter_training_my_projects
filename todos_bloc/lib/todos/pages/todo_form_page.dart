@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:todos_bloc/todos/todos.dart';
 
 class TodoFormPage extends StatefulWidget {
-  const TodoFormPage._({required Todo todo, Key? key})
+  const TodoFormPage._({required Todo todo, required Function(Todo todo) onSaved, Key? key})
       : _todo = todo,
+        _onSaved = onSaved,
         super(key: key);
 
-  static Route route({Todo? todo}) {
-    return MaterialPageRoute(builder: (context) => TodoFormPage._(todo: todo ?? Todo.empty));
+  static const routeName = '/todo_form';
+  static Route route({required Todo todo, required Function(Todo todo) onSaved}) {
+    return MaterialPageRoute(builder: (context) => TodoFormPage._(todo: todo, onSaved: onSaved));
   }
 
   final Todo _todo;
+  final Function(Todo todo) _onSaved;
 
   @override
   State<TodoFormPage> createState() => _TodoFormPageState();
@@ -19,6 +22,8 @@ class TodoFormPage extends StatefulWidget {
 class _TodoFormPageState extends State<TodoFormPage> {
   late final TextEditingController _titleController;
   late final TextEditingController _subtitleController;
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -43,28 +48,33 @@ class _TodoFormPageState extends State<TodoFormPage> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _titleController,
-                keyboardType: TextInputType.text,
-              ),
-              TextFormField(
-                controller: _subtitleController,
-                keyboardType: TextInputType.text,
-              ),
-            ],
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Title'),
+                  controller: _titleController,
+                  keyboardType: TextInputType.text,
+                  validator: (value) => (value == null || value.isEmpty) ? 'Cannot be empty.' : null,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Content'),
+                  controller: _subtitleController,
+                  keyboardType: TextInputType.text,
+                  validator: (value) => (value == null || value.isEmpty) ? 'Cannot be empty.' : null,
+                ),
+              ],
+            ),
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          print('== save todo - precisa validar antes');
-          print(widget._todo.id);
-          print(_titleController.text);
-          print(_subtitleController.text);
-          print(widget._todo.completed);
-          Navigator.pop(context);
+          if (_formKey.currentState!.validate()) {
+            widget._onSaved(widget._todo.copyWith(title: _titleController.text, subtitle: _subtitleController.text));
+          }
         },
         child: const Icon(Icons.done),
       ),

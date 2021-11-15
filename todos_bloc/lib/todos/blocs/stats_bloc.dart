@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:todos_bloc/todos/repositories/todos_repository.dart';
+import 'package:todos_bloc/todos/todos.dart';
 
 part 'stats_event.dart';
 part 'stats_state.dart';

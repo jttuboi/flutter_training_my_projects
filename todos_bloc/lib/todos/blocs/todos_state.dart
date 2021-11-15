@@ -1,6 +1,5 @@
 part of 'todos_bloc.dart';
 
-@immutable
 class TodosState extends Equatable {
   const TodosState({
     this.todos = const <Todo>[],

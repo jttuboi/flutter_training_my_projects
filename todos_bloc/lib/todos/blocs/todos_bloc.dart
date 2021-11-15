@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:todos_bloc/todos/todos.dart';
 
 part 'todos_event.dart';
@@ -26,17 +25,14 @@ class TodosBloc extends Bloc<TodosEvent, TodosState> {
     on<ShowAllTodos>(_onShowAllTodos);
     on<ShowActiveTodos>(_onShowActiveTodos);
     on<ShowCompletedTodos>(_onShowCompletedTodos);
-
-    // ATUALIZA TOoDO TILE
-    on<TodoChecked>(_onTodoChecked);
-
-    on<TodoDeleted>(_onTodoDeleted);
+    on<TodoCheckedFromList>(_onTodoCheckedFromList);
+    on<TodoDeletedFromList>(_onTodoDeletedFromList);
     on<TodoUndone>(_onTodoUndone);
     on<TodosUpdated>(_onTodosUpdated);
+    on<TodoAdded>(_onTodoAdded);
   }
 
   final ITodosRepository _todosRepository;
-
   Todo _todoDeleted = Todo.empty;
 
   Future<void> _onTodosTabOpened(TodosTabOpened event, Emitter<TodosState> emit) async {
@@ -59,32 +55,15 @@ class TodosBloc extends Bloc<TodosEvent, TodosState> {
     emit(state.copyWith(todos: completeTodos, showStatus: ShowStatus.completeTodos));
   }
 
-  Future<void> _onTodoChecked(TodoChecked event, Emitter<TodosState> emit) async {
-    // // dados do state
-    // final newTodos = <Todo>[];
-    // for (final todo in state.todos) {
-    //   newTodos.add((todo != event.todo) ? todo : todo.copyWith(completed: event.isCompleted));
-    // }
-    // // banco de dados
-    // final newTodos2 = <Todo>[];
-    // for (final todo in _todos) {
-    //   newTodos2.add((todo != event.todo) ? todo : todo.copyWith(completed: event.isCompleted));
-    // }
-    // _todos = newTodos2;
-    // emit(state.copyWith(todos: newTodos));
+  Future<void> _onTodoCheckedFromList(TodoCheckedFromList event, Emitter<TodosState> emit) async {
+    await _todosRepository.checkTodo(event.todo, event.isCompleted);
+    await _updateStateBasedOnShowTodos(emit);
   }
 
-  Future<void> _onTodoDeleted(TodoDeleted event, Emitter<TodosState> emit) async {
+  Future<void> _onTodoDeletedFromList(TodoDeletedFromList event, Emitter<TodosState> emit) async {
     _todoDeleted = event.todo;
     await _todosRepository.deleteTodo(_todoDeleted);
-
-    if (state.showStatus.showAllTodos) {
-      emit(state.copyWith(todos: await _todosRepository.getTodos()));
-    } else if (state.showStatus.showCompleteTodos) {
-      emit(state.copyWith(todos: await _todosRepository.getCompleteTodos()));
-    } else if (state.showStatus.showIncompleteTodos) {
-      emit(state.copyWith(todos: await _todosRepository.getIncompleteTodos()));
-    }
+    await _updateStateBasedOnShowTodos(emit);
   }
 
   Future<void> _onTodoUndone(TodoUndone event, Emitter<TodosState> emit) async {
@@ -95,19 +74,19 @@ class TodosBloc extends Bloc<TodosEvent, TodosState> {
     await _todosRepository.addTodo(_todoDeleted);
     _todoDeleted = Todo.empty;
 
-    if (state.showStatus.showAllTodos) {
-      final todos2 = await _todosRepository.getTodos();
-      emit(state.copyWith(todos: todos2));
-    } else if (state.showStatus.showCompleteTodos) {
-      final todos2 = await _todosRepository.getCompleteTodos();
-      emit(state.copyWith(todos: todos2));
-    } else if (state.showStatus.showIncompleteTodos) {
-      final todos2 = await _todosRepository.getIncompleteTodos();
-      emit(state.copyWith(todos: todos2));
-    }
+    await _updateStateBasedOnShowTodos(emit);
   }
 
   Future<void> _onTodosUpdated(TodosUpdated event, Emitter<TodosState> emit) async {
+    await _updateStateBasedOnShowTodos(emit);
+  }
+
+  Future<void> _onTodoAdded(TodoAdded event, Emitter<TodosState> emit) async {
+    await _todosRepository.addTodo(event.todo);
+    await _updateStateBasedOnShowTodos(emit);
+  }
+
+  Future<void> _updateStateBasedOnShowTodos(Emitter<TodosState> emit) async {
     if (state.showStatus.showAllTodos) {
       emit(state.copyWith(todos: await _todosRepository.getTodos()));
     } else if (state.showStatus.showCompleteTodos) {

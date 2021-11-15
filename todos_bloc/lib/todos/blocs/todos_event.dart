@@ -17,8 +17,17 @@ class ShowCompletedTodos extends TodosEvent {}
 
 class TodosUpdated extends TodosEvent {}
 
-class TodoChecked extends TodosEvent {
-  const TodoChecked({required this.todo, required this.isCompleted});
+class TodoAdded extends TodosEvent {
+  const TodoAdded({required this.todo});
+
+  final Todo todo;
+
+  @override
+  List<Object> get props => [todo];
+}
+
+class TodoCheckedFromList extends TodosEvent {
+  const TodoCheckedFromList({required this.todo, required this.isCompleted});
 
   final Todo todo;
   final bool isCompleted;
@@ -27,8 +36,8 @@ class TodoChecked extends TodosEvent {
   List<Object> get props => [todo, isCompleted];
 }
 
-class TodoDeleted extends TodosEvent {
-  const TodoDeleted({required this.todo});
+class TodoDeletedFromList extends TodosEvent {
+  const TodoDeletedFromList({required this.todo});
 
   final Todo todo;
 

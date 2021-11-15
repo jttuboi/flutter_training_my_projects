@@ -12,9 +12,10 @@ class TodosTab extends StatelessWidget {
       itemBuilder: (_, index) {
         return TodoTile(
           todo: _todos[index],
-          onChecked: (completed) => context.read<TodosBloc>().add(TodoChecked(todo: _todos[index], isCompleted: completed)),
-          onDelete: (todoDeleted) => context.read<TodosBloc>().add(TodoDeleted(todo: _todos[index])),
+          onChecked: (completed) => context.read<TodosBloc>().add(TodoCheckedFromList(todo: _todos[index], isCompleted: completed)),
+          onDelete: (todoDeleted) => context.read<TodosBloc>().add(TodoDeletedFromList(todo: _todos[index])),
           onUndo: () => context.read<TodosBloc>().add(TodoUndone()),
+          onBackEdit: () => context.read<TodosBloc>().add(TodosUpdated()),
         );
       },
       itemCount: _todos.length,

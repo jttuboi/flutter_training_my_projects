@@ -12,7 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^7.3.3
-  meta: ^1.7.0
+  uuid: ^3.0.5
 
 dev_dependencies:
   bloc_test: ^8.5.0
