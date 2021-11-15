@@ -120,3 +120,47 @@ Finish of the game
 </td>
 </tr>
 </table>
+
+## Todos
+
+This is a simple todo list based on https://bloclibrary.dev/#/fluttertodostutorial. I only used the GIF to reference and build the app using what I learnt. In other project, I copy to look the diferences of them.
+
+This project uses Bloc pattern.
+
+See inside the project's README for more details:
+https://github.com/jttuboi/flutter_training_my_projects/tree/main/todos_bloc
+
+<table>
+<tr>
+<td>
+Todos tab
+</td>
+<td>
+Stats tab
+</td>
+</tr>
+<tr>
+<td>
+<img src="_images/Screenshot_1637005007.png" width="200" />
+</td>
+<td>
+<img src="_images/Screenshot_1637005013.png" width="200" />
+</td>
+</tr>
+<tr>
+<td>
+Show todo details
+</td>
+<td>
+Add/Edit todo
+</td>
+</tr>
+<tr>
+<td>
+<img src="_images/Screenshot_1637005022.png" width="200" />
+</td>
+<td>
+<img src="_images/Screenshot_1637005035.png" width="200" />
+</td>
+</tr>
+</table>
