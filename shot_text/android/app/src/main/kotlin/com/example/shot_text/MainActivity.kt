@@ -1,4 +1,4 @@
-package com.example.shot_text
+package br.com.tuboistudios.shot_text
 
 import io.flutter.embedding.android.FlutterActivity
 
