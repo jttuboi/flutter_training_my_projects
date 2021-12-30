@@ -9,3 +9,9 @@ class ConverterImageToTextService implements IConverterImageToTextService {
     return Future.value('');
   }
 }
+// https://developers.google.com/ml-kit/guides
+// https://developers.google.com/ml-kit/vision/text-recognition/android
+// https://github.com/bharat-biradar/Google-Ml-Kit-plugin (tentar implementar sem a ajuda de packages externos)
+// https://pub.dev/packages/google_ml_kit
+
+// https://pub.dev/packages/flutter_tesseract_ocr
