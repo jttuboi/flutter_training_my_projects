@@ -10,8 +10,8 @@ class ShotResultErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Material(
+    return Scaffold(
+      body: SingleChildScrollView(
         child: Stack(
           children: [
             ShotResultBackground(imagePath: imagePath, width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height),

@@ -33,3 +33,7 @@ class ShotResultTextReady extends ShotResultState {
 class ShotResultTextCopiedReady extends ShotResultTextReady {
   const ShotResultTextCopiedReady(String imagePath, String text) : super(imagePath, text);
 }
+
+class ShotResultUrlNotOpenedReady extends ShotResultTextReady {
+  const ShotResultUrlNotOpenedReady(String imagePath, String text) : super(imagePath, text);
+}

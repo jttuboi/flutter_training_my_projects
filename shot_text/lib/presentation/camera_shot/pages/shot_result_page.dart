@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:shot_text/presentation/camera_shot/cubit/shot_result_cubit.dart';
+import 'package:shot_text/presentation/camera_shot/theme.dart';
 import 'package:shot_text/presentation/camera_shot/widgets/shot_result_error_view.dart';
 import 'package:shot_text/presentation/camera_shot/widgets/shot_result_loading_view.dart';
 import 'package:shot_text/presentation/camera_shot/widgets/shot_result_ready_view.dart';
@@ -31,8 +32,13 @@ class ShotResultView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<ShotResultCubit, ShotResultState>(
       listener: (context, state) {
+        if (state is ShotResultUrlNotOpenedReady) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Its not a allowed url: ${state.text}')));
+        }
         if (state is ShotResultTextCopiedReady) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied to clipboard.')));
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Text copied to clipboard: ${state.text}')));
           showDialog(
             context: context,
             builder: (context) {
@@ -40,10 +46,13 @@ class ShotResultView extends StatelessWidget {
                 title: const Text('Text copied to clipboard.'),
                 content: const Text('Do you want to exit?'),
                 actions: [
-                  TextButton(onPressed: () => Modular.to.pop(), child: const Text('No')),
+                  TextButton(onPressed: () => Modular.to.pop(), style: textDialogButtonStyle, child: const Text('No')),
                   // OBS: SystemNavigator.pop() não funfa no iOS
-                  const TextButton(onPressed: SystemNavigator.pop, child: Text('Yes')),
+                  TextButton(onPressed: SystemNavigator.pop, style: textDialogButtonStyle, child: const Text('Yes')),
                 ],
+                titleTextStyle: textDialogTitleStyle,
+                contentTextStyle: textDialogContentStyle,
+                backgroundColor: dialogBackgroundColor,
               );
             },
           );

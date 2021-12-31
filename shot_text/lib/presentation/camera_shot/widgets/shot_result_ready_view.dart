@@ -34,8 +34,8 @@ class _ShotResultReadyViewState extends State<ShotResultReadyView> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Material(
+    return Scaffold(
+      body: SingleChildScrollView(
         child: Stack(
           children: [
             ShotResultBackground(imagePath: widget.imagePath, width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height),
@@ -49,13 +49,21 @@ class _ShotResultReadyViewState extends State<ShotResultReadyView> {
                 children: [
                   SizedBox(
                     width: 180,
-                    child: TextField(
-                      controller: _textEditingController,
-                      minLines: 1,
-                      maxLines: 5,
-                      decoration: textFieldDecoration,
-                      cursorColor: Colors.white,
-                      style: textFieldStyle,
+                    child: Theme(
+                      data: Theme.of(context).copyWith(
+                        textSelectionTheme: TextSelectionThemeData(
+                          selectionColor: Colors.grey.withOpacity(0.7),
+                          selectionHandleColor: Colors.amber,
+                          cursorColor: Colors.white,
+                        ),
+                      ),
+                      child: TextField(
+                        controller: _textEditingController,
+                        minLines: 1,
+                        maxLines: 5,
+                        decoration: textFieldDecoration,
+                        style: textFieldStyle,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),

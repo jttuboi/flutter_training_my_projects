@@ -11,8 +11,11 @@ class ShotResultLoadingView extends StatelessWidget {
     return Stack(
       children: [
         ShotResultBackground(imagePath: imagePath, width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height),
-        const Center(
-          child: CircularProgressIndicator.adaptive(),
+        Center(
+          child: CircularProgressIndicator.adaptive(
+            backgroundColor: Colors.grey.withOpacity(0.5),
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.grey.shade300),
+          ),
         ),
       ],
     );
