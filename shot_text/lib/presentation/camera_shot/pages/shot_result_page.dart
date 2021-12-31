@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:shot_text/presentation/camera_shot/cubit/shot_result_cubit.dart';
-import 'package:shot_text/presentation/camera_shot/widgets/shot_icon_button.dart';
-import 'package:shot_text/presentation/camera_shot/widgets/shot_result_background.dart';
+import 'package:shot_text/presentation/camera_shot/widgets/shot_result_error_view.dart';
 import 'package:shot_text/presentation/camera_shot/widgets/shot_result_loading_view.dart';
-import 'package:shot_text/presentation/camera_shot/widgets/shot_text_button.dart';
+import 'package:shot_text/presentation/camera_shot/widgets/shot_result_ready_view.dart';
+import 'package:shot_text/presentation/camera_shot/widgets/show_result_settings_menu.dart';
 
 class ShotResultPage extends StatelessWidget {
   const ShotResultPage({required this.imagePath, Key? key}) : super(key: key);
 
   static String routeName = '/result';
-
-  static Route route({required String imagePath}) {
-    return MaterialPageRoute(builder: (context) => ShotResultPage(imagePath: imagePath));
-  }
 
   final String imagePath;
 
@@ -43,7 +40,7 @@ class ShotResultView extends StatelessWidget {
                 title: const Text('Text copied to clipboard.'),
                 content: const Text('Do you want to exit?'),
                 actions: [
-                  TextButton(onPressed: () => Navigator.pop(context), child: const Text('No')),
+                  TextButton(onPressed: () => Modular.to.pop(), child: const Text('No')),
                   // OBS: SystemNavigator.pop() não funfa no iOS
                   const TextButton(onPressed: SystemNavigator.pop, child: Text('Yes')),
                 ],
@@ -54,113 +51,17 @@ class ShotResultView extends StatelessWidget {
       },
       builder: (context, state) {
         if (state is ShotResultTextNotFound) {
-          return ShotResultErrorView(imagePath: state.imagePath);
+          return ShotResultSettingsMenu(
+            mainView: ShotResultErrorView(imagePath: state.imagePath),
+          );
         }
         if (state is ShotResultTextLoading) {
           return ShotResultLoadingView(imagePath: state.imagePath);
         }
-        return ShotResultReadyView(imagePath: state.imagePath);
+        return ShotResultSettingsMenu(
+          mainView: ShotResultReadyView(imagePath: state.imagePath, text: (state as ShotResultTextReady).text),
+        );
       },
-    );
-  }
-}
-
-class ShotResultReadyView extends StatelessWidget {
-  const ShotResultReadyView({required this.imagePath, Key? key}) : super(key: key);
-
-  final String imagePath;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          leading: Container(),
-          backgroundColor: Colors.transparent,
-          actions: [
-            IconButton(
-              onPressed: () => print('== settings'),
-              icon: const Icon(Icons.more_vert_rounded),
-            )
-          ],
-        ),
-        backgroundColor: Colors.transparent,
-        body: Stack(
-          children: [
-            ShotResultBackground(imagePath: imagePath, width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height),
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ShotIconButton(
-                        tooltip: 'Open in browser',
-                        icon: Icons.open_in_browser_rounded,
-                        onPressed: () => context.read<ShotResultCubit>().urlOpened(),
-                      ),
-                      const SizedBox(width: 8),
-                      ShotIconButton(
-                        tooltip: 'Copy to clipboard',
-                        icon: Icons.content_copy_rounded,
-                        onPressed: () => context.read<ShotResultCubit>().textCopied(),
-                      ),
-                      const SizedBox(width: 8),
-                      ShotIconButton(
-                        tooltip: 'Share to',
-                        icon: Icons.share_rounded,
-                        onPressed: () => context.read<ShotResultCubit>().textShared(),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  ShotTextButton(
-                    text: 'Try another shot.',
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ));
-  }
-}
-
-class ShotResultErrorView extends StatelessWidget {
-  const ShotResultErrorView({required this.imagePath, Key? key}) : super(key: key);
-
-  final String imagePath;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: Container(),
-        backgroundColor: Colors.transparent,
-        actions: [
-          IconButton(
-            onPressed: () => print('== settings'),
-            icon: const Icon(Icons.more_vert_rounded),
-          )
-        ],
-      ),
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          ShotResultBackground(imagePath: imagePath, width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ShotTextButton(
-                  text: 'Text not found.\nTry another shot.',
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

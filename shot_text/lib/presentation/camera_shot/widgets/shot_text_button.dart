@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shot_text/presentation/camera_shot/consts.dart';
+import 'package:shot_text/presentation/camera_shot/theme.dart';
 
 class ShotTextButton extends StatelessWidget {
   const ShotTextButton({required this.text, required this.onPressed, Key? key}) : super(key: key);

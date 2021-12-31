@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shot_text/presentation/camera_shot/pages/shot_result_page.dart';
 import 'package:shot_text/presentation/camera_shot/widgets/shot_text_button.dart';
@@ -10,10 +11,6 @@ class CameraShotPage extends StatefulWidget {
   const CameraShotPage({Key? key}) : super(key: key);
 
   static String routeName = '/';
-
-  static Route route() {
-    return MaterialPageRoute(builder: (context) => const CameraShotPage());
-  }
 
   @override
   _CameraShotPageState createState() => _CameraShotPageState();
@@ -38,15 +35,12 @@ class _CameraShotPageState extends State<CameraShotPage> {
       final pickedFile = await _picker.pickImage(
         source: ImageSource.camera,
         imageQuality: 100,
-        // TODO bloquear a camera front
-        // TODO aumentar o tamanho da camera pela tela
-        // TODO ver se tem como trocar e utilizar a page como camera e nao um botao que entra na camera
       );
       if (!mounted) {
         return;
       }
       if (pickedFile != null) {
-        Navigator.pushNamed(context, ShotResultPage.routeName, arguments: pickedFile.path);
+        await Modular.to.pushNamed(ShotResultPage.routeName, arguments: pickedFile.path);
       }
     } on PlatformException catch (e, s) {
       // TODO arrumar essa parte do error,

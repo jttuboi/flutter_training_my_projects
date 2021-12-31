@@ -11,9 +11,11 @@ class ShotResultBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (imagePath.isEmpty) {
-      return Container(color: Colors.black, width: width, height: height);
-    }
-    return Image.file(File(imagePath), width: width, height: height);
+    return Stack(
+      children: [
+        Container(color: Colors.black, width: width, height: height),
+        Image.file(File(imagePath), width: width, height: height),
+      ],
+    );
   }
 }
