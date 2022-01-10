@@ -164,3 +164,14 @@ Add/Edit todo
 </td>
 </tr>
 </table>
+
+## Products
+
+This app shows a list of products and you can remove or edit a product. The data is stored in Firebase.
+
+This project uses bloc pattern, image_picker and firebase (cloud firestore for data and storage for pictures).
+
+See inside the project's README for more details:
+https://github.com/jttuboi/flutter_training_my_projects/tree/main/products
+
+NO PICTURE
