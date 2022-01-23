@@ -56,7 +56,13 @@ No projeto, existem pastas além da arquitetura.
 ## Como executar o projeto
 
 - Clone o projeto.
-
+```bash
+git@lab.coodesh.com:jttuboi/flutter-20210610.git
+```
+ou
+```bash
+https://lab.coodesh.com/jttuboi/flutter-20210610.git
+```
 - Com o projeto aberto, baixe os packages para o projeto.
 ```bash
 flutter pub get
