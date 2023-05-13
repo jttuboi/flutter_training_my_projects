@@ -7,10 +7,14 @@ environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
+  bloc: "8.1.1"
+  dio: "5.1.2"
   flutter:
     sdk: flutter
+  flutter_bloc: "8.1.2"
 
 dev_dependencies:
+  bloc_test: "9.1.1"
   flutter_lints: "2.0.1"
   flutter_test:
     sdk: flutter
