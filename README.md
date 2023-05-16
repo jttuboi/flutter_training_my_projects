@@ -175,3 +175,9 @@ See inside the project's README for more details:
 https://github.com/jttuboi/flutter_training_my_projects/tree/main/products
 
 NO PICTURE
+
+## Offline CDRM
+
+This app shows offline data in some pages to test offline.
+
+It's used flutter modular structure to control routes and independency injection and bloc to control states.
