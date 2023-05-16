@@ -1,13 +1,13 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
-part 'pl_state.dart';
+part 'pf_state.dart';
 
-class PlCubit extends Cubit<PlState> {
-  PlCubit() : super(const PlInitial());
+class PfCubit extends Cubit<PfState> {
+  PfCubit() : super(const PfInitial());
 
   Future<void> init() async {
     await Future.delayed(const Duration(seconds: 2));
-    emit(const PlLoaded(['aaa', 'bbb', 'ccc']));
+    emit(const PfLoaded(['aaa', 'bbb', 'ccc']));
   }
 }

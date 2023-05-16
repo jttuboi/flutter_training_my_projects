@@ -4,13 +4,13 @@ import 'package:flutter_modular/flutter_modular.dart';
 
 import '../../utils/route_name.dart';
 import '../../widgets/button.dart';
-import 'pl_cubit.dart';
+import 'pf_cubit.dart';
 import 'screen_with_menu.dart';
 
 class PfScreen extends StatelessWidget {
-  PfScreen({PlCubit? cubit, super.key}) : _cubit = cubit ?? Modular.get<PlCubit>();
+  PfScreen({PfCubit? cubit, super.key}) : _cubit = cubit ?? Modular.get<PfCubit>();
 
-  final PlCubit _cubit;
+  final PfCubit _cubit;
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +26,11 @@ class PlView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PlCubit, PlState>(
+    return BlocBuilder<PfCubit, PfState>(
       builder: (_, state) {
         return ScreenWithMenu(RouteName.pf, contents: [
-          if (state is PlInitial) const Center(child: CircularProgressIndicator()),
-          if (state is PlLoaded)
+          if (state is PfInitial) const Center(child: CircularProgressIndicator()),
+          if (state is PfLoaded)
             ...state.users.map((user) {
               return Button.label('user $user', onTap: () => Modular.to.pushNamed(RouteName.pl.path.replaceAll(':id', user)));
             })

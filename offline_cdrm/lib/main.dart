@@ -8,8 +8,8 @@ import 'features/home/fp_screen.dart';
 import 'features/home/hp_screen.dart';
 import 'features/home/hpd_screen.dart';
 import 'features/home/ht_screen.dart';
+import 'features/home/pf_cubit.dart';
 import 'features/home/pf_screen.dart';
-import 'features/home/pl_cubit.dart';
 import 'features/home/pl_screen.dart';
 import 'features/home/screen_with_menu.dart';
 import 'features/init/authentication_change_notifier.dart';
@@ -69,9 +69,7 @@ class HomeGuard extends RouteGuard {
 
 class WModule extends Module {
   @override
-  List<Bind> get binds => [
-        Bind.factory<PlCubit>((i) => PlCubit()),
-      ];
+  List<Bind> get binds => [];
 
   @override
   List<ModularRoute> get routes {
@@ -85,7 +83,7 @@ class WModule extends Module {
 class HomeModule extends Module {
   @override
   List<Bind> get binds => [
-        Bind.factory<PlCubit>((i) => PlCubit()),
+        Bind.factory<PfCubit>((i) => PfCubit()),
       ];
 
   @override
