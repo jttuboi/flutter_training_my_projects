@@ -10,6 +10,7 @@ import 'features/home/hpd_screen.dart';
 import 'features/home/ht_screen.dart';
 import 'features/home/pf_cubit.dart';
 import 'features/home/pf_screen.dart';
+import 'features/home/pl_cubit.dart';
 import 'features/home/pl_screen.dart';
 import 'features/home/screen_with_menu.dart';
 import 'features/init/authentication_change_notifier.dart';
@@ -17,6 +18,8 @@ import 'features/login/login_screen.dart';
 import 'features/login/pr_screen.dart';
 import 'features/w/w_end_screen.dart';
 import 'features/w/w_screen.dart';
+import 'services/http_client_service.dart';
+import 'services/key_value_database_service.dart';
 import 'utils/my_observer.dart';
 import 'utils/route_name.dart';
 
@@ -32,6 +35,8 @@ class AppModule extends Module {
   @override
   List<Bind> get binds => [
         Bind.singleton<AuthenticationChangeNotifier>((i) => AuthenticationChangeNotifier(), onDispose: (changeNotifier) => changeNotifier.dispose()),
+        Bind.singleton<IHttpClientService>((i) => DioService(), onDispose: (service) => service.close()),
+        Bind.singleton<IKeyValueDatabaseService>((i) => const SharedPreferencesService()),
       ];
 
   @override
@@ -84,6 +89,7 @@ class HomeModule extends Module {
   @override
   List<Bind> get binds => [
         Bind.factory<PfCubit>((i) => PfCubit()),
+        Bind.factory<PlCubit>((i) => PlCubit()),
       ];
 
   @override

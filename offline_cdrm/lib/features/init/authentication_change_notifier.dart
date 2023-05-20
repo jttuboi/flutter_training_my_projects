@@ -6,7 +6,8 @@ class AuthenticationChangeNotifier extends ChangeNotifier {
 
   bool isLogged = false;
   String userLogged = '';
-  bool wToAnwser = true;
+  bool wToAnwser = false;
+  //bool wToAnwser = true;
 
   Future<void> login() async {
     isLogged = true;
