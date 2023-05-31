@@ -96,7 +96,6 @@ class _ContactsViewState extends State<ContactsView> with ContactDialogMixin, CS
             return const Center(child: CircularProgressIndicator());
           }
 
-          // TODO widget refresh nao está funcionando
           return RefreshIndicator(
             onRefresh: () => _refreshList(context),
             child: ListView(
