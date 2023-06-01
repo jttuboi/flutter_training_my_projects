@@ -146,3 +146,23 @@ extension _DateTimeExtension on DateTime {
 extension _IntExtension on int {
   String toPadLeftZero() => toString().padLeft(2, '0');
 }
+
+extension ContactsExtension on List<Contact> {
+  static List<Contact> fromEntitiesMap(Map<String, dynamic> map) {
+    final maps = map['entities'] as List;
+
+    return maps.map<Contact>((map) => Contact.fromMap(map)).toList();
+  }
+
+  Map<String, dynamic> toEntitiesMap() {
+    return {
+      'entities': map<Map<String, dynamic>>((contact) => contact.toMap()).toList(),
+    };
+  }
+
+  Map<String, dynamic> toCountMap() {
+    return {
+      'count': length,
+    };
+  }
+}

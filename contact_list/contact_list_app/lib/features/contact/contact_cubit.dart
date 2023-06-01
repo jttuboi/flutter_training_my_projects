@@ -5,6 +5,7 @@ import '../../entities/contact.dart';
 import '../../failures/empty_name_validation_failure.dart';
 import '../../repositories/contact_repository.dart';
 import '../../services/result/failure.dart';
+import '../../utils/logger.dart';
 
 part 'contact_state.dart';
 
@@ -16,6 +17,8 @@ class ContactCubit extends Cubit<ContactState> {
   final ContactRepository _repository;
 
   Future<void> save({required Contact contact, required bool isNew}) async {
+    Logger.pContactCubit('save', {'contact': contact, 'isNew': isNew});
+
     if (contact.name.trim().isEmpty) {
       emit(const ContactValidationFailure(failure: EmptyNameValidationFailure()));
       return;
@@ -41,6 +44,8 @@ class ContactCubit extends Cubit<ContactState> {
   }
 
   Future<void> delete({required Contact contact}) async {
+    Logger.pContactCubit('delete', {'contact': contact});
+
     emit(const ContactLoading());
 
     (await _repository.delete(contact)).result((_) {

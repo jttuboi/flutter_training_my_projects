@@ -6,6 +6,7 @@ import '../entities/meta.dart';
 import '../entities/sync_status.dart';
 import '../services/connection_checker/connection_checker.dart';
 import '../services/result/result.dart';
+import '../utils/logger.dart';
 import 'contact_offline_datasource.dart';
 import 'contact_online_datasource.dart';
 import 'dio_contact_online_datasource.dart';
@@ -25,6 +26,8 @@ class ContactRepository {
   /// synchronize local database with server
   ///
   Future<Result<void>> synchronize() async {
+    Logger.pContactRepository('synchronize');
+
     if (!_connectionChecker.hasConnection) {
       // não retorna erro, pois o problema é a falta de internet e não um erro em si.
       // como é necessário internet para sincronizar, não há o pq tentar sincronizar.
@@ -83,6 +86,8 @@ class ContactRepository {
   /// get partial contacts using page
   ///
   Future<Result<({List<Contact> contacts, Meta meta})>> getAll({bool perPage = true, int page = 0}) async {
+    Logger.pContactRepository('getAll', {'perPage': perPage, 'page': page});
+
     return _offlineDataSource.getAll(perPage: perPage, page: page);
   }
 
@@ -91,6 +96,8 @@ class ContactRepository {
   /// obs: after call this, must call synchronize
   ///
   Future<Result<void>> deleteAll() async {
+    Logger.pContactRepository('deleteAll');
+
     // refaz os contatos para status removed
     return (await _offlineDataSource.setToRemoveAll(
       updatedAt: DateTime.now(),
@@ -112,6 +119,8 @@ class ContactRepository {
   /// obs: after call this, must call synchronize
   ///
   Future<Result<void>> add(Contact contact) async {
+    Logger.pContactRepository('add', {'contact': contact});
+
     // refaz o contact para status added
     final contactToAdd = (contact.id.isEmpty || contact.createdAt == null || contact.syncStatus != SyncStatus.added)
         ? contact.copyWith(id: const Uuid().v4(), createdAt: DateTime.now(), syncStatus: SyncStatus.added)
@@ -134,6 +143,8 @@ class ContactRepository {
   /// obs: after call this, must call synchronize
   ///
   Future<Result<void>> edit(Contact contact) async {
+    Logger.pContactRepository('edit', {'contact': contact});
+
     // refazer o contact para status updated
     final contactToUpdate = (contact.updatedAt == null || contact.syncStatus != SyncStatus.updated)
         ? contact.copyWith(updatedAt: DateTime.now(), syncStatus: SyncStatus.updated)
@@ -156,6 +167,8 @@ class ContactRepository {
   /// obs: after call this, must call synchronize
   ///
   Future<Result<void>> delete(Contact contact) async {
+    Logger.pContactRepository('delete', {'contact': contact});
+
     // refazer o contact para status removed
     final contactToRemove = (contact.updatedAt == null || contact.syncStatus != SyncStatus.removed)
         ? contact.copyWith(updatedAt: DateTime.now(), syncStatus: SyncStatus.removed)

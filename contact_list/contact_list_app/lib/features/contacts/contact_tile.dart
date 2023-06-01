@@ -76,7 +76,7 @@ class _ContactTileState extends State<ContactTile> with ContactDialogMixin, CSna
           ),
           const SizedBox(width: 4),
           Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(widget.contact.name),
+            Text('${widget.contact.name} (${widget.contact.syncStatus.name})'),
             const SizedBox(height: 4),
             if (widget.contact.documentUrl.isNotEmpty)
               CButton(Strings.contactsOpenDocument(widget.contact.documentPhonePath), onPressed: widget.onOpenDocument),

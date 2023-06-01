@@ -12,30 +12,11 @@ import '../failures/no_service_found_failure.dart';
 import '../failures/timeout_failure.dart';
 import '../failures/unknown_failure.dart';
 import '../services/result/result.dart';
+import '../utils/logger.dart';
 import 'contact_online_datasource.dart';
 
 extension _IntExtension on int? {
   bool get is200ok => this == 200;
-}
-
-extension ContactsExtension on List<Contact> {
-  static List<Contact> fromEntitiesMap(Map<String, dynamic> map) {
-    final maps = map['entities'] as List;
-
-    return maps.map<Contact>((map) => Contact.fromMap(map)).toList();
-  }
-
-  Map<String, dynamic> toEntitiesMap() {
-    return {
-      'entities': map<Map<String, dynamic>>((contact) => contact.toMap()).toList(),
-    };
-  }
-
-  Map<String, dynamic> toCountMap() {
-    return {
-      'count': length,
-    };
-  }
 }
 
 class DioContactOnlineDataSource implements IContactOnlineDataSource {
@@ -47,6 +28,8 @@ class DioContactOnlineDataSource implements IContactOnlineDataSource {
 
   @override
   Future<Result<List<Contact>>> synchronize(List<Contact> contactsDesynchronized) {
+    Logger.pContactOnlineDataSource('synchronize', {'contactsDesynchronized': contactsDesynchronized});
+
     return _tryCatch<List<Contact>>(() async {
       final response = await _dio.put('/contacts', data: contactsDesynchronized.toEntitiesMap());
 
@@ -66,6 +49,8 @@ class DioContactOnlineDataSource implements IContactOnlineDataSource {
 
   @override
   Future<Result<bool>> hasDataToSynchronize() {
+    Logger.pContactOnlineDataSource('hasDataToSynchronize');
+
     return _tryCatch<bool>(() async {
       final response = await _dio.get('/contacts/count').timeout(durationTimeout);
 
@@ -79,6 +64,8 @@ class DioContactOnlineDataSource implements IContactOnlineDataSource {
 
   @override
   Future<Result<List<Contact>>> getAll() async {
+    Logger.pContactOnlineDataSource('getAll');
+
     return _tryCatch<List<Contact>>(() async {
       final response = await _dio.get('/contacts');
 

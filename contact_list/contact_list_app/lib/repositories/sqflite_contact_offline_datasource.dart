@@ -10,6 +10,7 @@ import '../entities/sync_status.dart';
 import '../failures/unknown_failure.dart';
 import '../services/result/result.dart';
 import '../utils/constants.dart';
+import '../utils/logger.dart';
 import 'contact_offline_datasource.dart';
 
 class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
@@ -24,6 +25,8 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
 
   @override
   Future<Result<({List<Contact> contacts, Meta meta})>> getAll({bool perPage = true, int page = 0}) async {
+    Logger.pContactOfflineDataSource('getAll', {'perPage': perPage, 'page': page});
+
     try {
       final totalEntries =
           Sqflite.firstIntValue(await _database.rawQuery('SELECT COUNT(*) FROM ${Contact.tableName} WHERE ${Contact.columnSyncStatus}<>?', [
@@ -68,6 +71,8 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
 
   @override
   Future<Result<void>> setToRemoveAll({required DateTime? updatedAt, required SyncStatus syncStatus}) async {
+    Logger.pContactOfflineDataSource('setToRemoveAll', {'updatedAt': updatedAt, 'syncStatus': syncStatus});
+
     try {
       await _database.rawUpdate(
         'UPDATE ${Contact.tableName} SET ${Contact.columnUpdatedAt}=?, ${Contact.columnSyncStatus}=?',
@@ -85,6 +90,8 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
 
   @override
   Future<Result<Contact>> create(Contact contactToAdd) async {
+    Logger.pContactOfflineDataSource('create', {'contactToAdd': contactToAdd});
+
     try {
       await _database.rawInsert(
           'INSERT INTO ${Contact.tableName}(${Contact.columnId}, ${Contact.columnName}, ${Contact.columnAvatarUrl}, ${Contact.columnDocumentUrl}, ${Contact.columnAvatarPhonePath}, ${Contact.columnDocumentPhonePath}, ${Contact.columnCreatedAt}, ${Contact.columnUpdatedAt}, ${Contact.columnSyncStatus}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
@@ -108,6 +115,8 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
 
   @override
   Future<Result<Contact>> update(Contact contactToEdit) async {
+    Logger.pContactOfflineDataSource('update', {'contactToEdit': contactToEdit});
+
     try {
       await _database.rawUpdate(
         'UPDATE ${Contact.tableName} SET ${Contact.columnId}=?, ${Contact.columnName}=?, ${Contact.columnAvatarUrl}=?, ${Contact.columnDocumentUrl}=?, ${Contact.columnAvatarPhonePath}=?, ${Contact.columnDocumentPhonePath}=?, ${Contact.columnCreatedAt}=?, ${Contact.columnUpdatedAt}=?, ${Contact.columnSyncStatus}=? WHERE ${Contact.columnId}=?',
@@ -133,6 +142,8 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
 
   @override
   Future<Result<void>> setRemove({required String id, required DateTime? updatedAt, required SyncStatus syncStatus}) async {
+    Logger.pContactOfflineDataSource('setRemove', {'id': id, 'updatedAt': updatedAt, 'syncStatus': syncStatus});
+
     try {
       await _database.rawUpdate(
         'UPDATE ${Contact.tableName} SET ${Contact.columnUpdatedAt}=?, ${Contact.columnSyncStatus}=? WHERE ${Contact.columnId}=?',
@@ -151,6 +162,8 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
 
   @override
   Future<Result<List<Contact>>> getAllDesynchronized() async {
+    Logger.pContactOfflineDataSource('getAllDesynchronized');
+
     try {
       final entries = await _database.rawQuery('SELECT * FROM ${Contact.tableName} WHERE ${Contact.columnSyncStatus}<>?', [
         SyncStatus.synced.name,
@@ -164,6 +177,8 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
 
   @override
   Future<Result<void>> synchronizeList(List<Contact> contactsToSynchronize) async {
+    Logger.pContactOfflineDataSource('synchronizeList', {'contactsToSynchronize': contactsToSynchronize});
+
     try {
       await _keyValueDatabase.write(key: _contactsSynchronizedKey, value: true.toString());
 
@@ -240,6 +255,8 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
 
   @override
   Future<void> desynchronizeList() async {
+    Logger.pContactOfflineDataSource('desynchronizeList');
+
     try {
       await _keyValueDatabase.write(key: _contactsSynchronizedKey, value: false.toString());
     } catch (e) {
@@ -249,6 +266,7 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
 
   @override
   Future<bool> isListSynchronized() async {
+    Logger.pContactOfflineDataSource('isListSynchronized');
     try {
       final value = await _keyValueDatabase.read(key: _contactsSynchronizedKey);
 
@@ -266,6 +284,8 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
 
   @override
   Future<bool> isListNotSynchronized() async {
+    Logger.pContactOfflineDataSource('isListNotSynchronized');
+
     return !(await isListSynchronized());
   }
 
