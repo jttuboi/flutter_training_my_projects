@@ -43,7 +43,6 @@ class _ContactsViewState extends State<ContactsView> with ContactDialogMixin, CS
 
   final _scrollController = ScrollController();
   final _isRefreshingList = ValueNotifier<bool>(false);
-  final _isLastPage = ValueNotifier<bool>(false);
 
   @override
   FutureOr<void> afterFirstFrame(BuildContext context) {
@@ -56,7 +55,6 @@ class _ContactsViewState extends State<ContactsView> with ContactDialogMixin, CS
       ..removeListener(() => _onListBottom(context))
       ..dispose();
     _isRefreshingList.dispose();
-    _isLastPage.dispose();
     super.dispose();
   }
 
@@ -85,10 +83,6 @@ class _ContactsViewState extends State<ContactsView> with ContactDialogMixin, CS
         listener: (_, state) {
           if (state is ContactsFailure) {
             showSnackBarForError(context, text: state.failure.messageForUser);
-          }
-
-          if (state.isLastPage) {
-            _isLastPage.value = true;
           }
         },
         builder: (_, state) {
@@ -172,7 +166,7 @@ class _ContactsViewState extends State<ContactsView> with ContactDialogMixin, CS
     if (_scrollController.hasClients) {
       final maxHeightToCallGetMore = _scrollController.position.maxScrollExtent - _heightOfTwoContactTile;
 
-      if (_scrollController.position.pixels > maxHeightToCallGetMore && !_isRefreshingList.value && !_isLastPage.value) {
+      if (_scrollController.position.pixels > maxHeightToCallGetMore && !_isRefreshingList.value && !context.read<ContactsCubit>().state.isLastPage) {
         _isRefreshingList.value = true;
         context.read<ContactsCubit>().getMore().whenComplete(() {
           _isRefreshingList.value = false;
