@@ -22,7 +22,11 @@
   - controla se um item foi adicionado/editado/removido no local mas não no servidor
   - quando pede para sincronizar a lista desincronizada, o item é sincronizado no servidor
 
-## Lins
+## Support
+
+https://www.figma.com/file/Hv1nRdNq4b082O2pVqfopw/Contact-List?type=whiteboard&node-id=0-1
+
+## Links
 
 para download de pdf/imagens de teste:
 
