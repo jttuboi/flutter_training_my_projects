@@ -9,9 +9,12 @@ import '../repositories/contact_offline_datasource.dart';
 import '../repositories/sqflite_contact_offline_datasource.dart';
 import '../services/connection_checker/connection_checker.dart';
 import 'constants.dart';
+import 'logger.dart';
 
 Future<void> registers() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  Logger.activateLogger = true;
 
   if (!GetIt.I.isRegistered<FlutterSecureStorage>()) {
     GetIt.I.registerSingleton<FlutterSecureStorage>(const FlutterSecureStorage(
