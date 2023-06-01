@@ -1,5 +1,13 @@
 # contact_list_app
 
+## TODO
+
+- [x] offline-first (crud básico com persistência no sqlite)
+- [x] adicionar verificador da internet
+- [x] adicionar sincronização com o servidor
+- [] adicionar avatar
+- [] adicionar pdf
+- [] adicionar testes de integração
 
 ## Lista de contatos com persistencia offline e sincronização em um servidor
 
