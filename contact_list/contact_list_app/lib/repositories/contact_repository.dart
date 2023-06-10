@@ -175,12 +175,7 @@ class ContactRepository {
         : contact;
 
     // deleta o contato na base local
-    return (await _offlineDataSource.setRemove(
-      id: contactToRemove.id,
-      updatedAt: contactToRemove.updatedAt,
-      syncStatus: contactToRemove.syncStatus,
-    ))
-        .result(
+    return (await _offlineDataSource.setRemove(contactToRemove)).result(
       (_) async {
         // desincroniza para posteriormente atualizar a lista através da sincronização
         await _offlineDataSource.desynchronizeList();

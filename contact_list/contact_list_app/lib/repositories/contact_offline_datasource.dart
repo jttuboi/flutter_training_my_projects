@@ -12,7 +12,7 @@ abstract interface class IContactOfflineDataSource {
 
   Future<Result<Contact>> update(Contact contactToEdit);
 
-  Future<Result<void>> setRemove({required String id, required DateTime? updatedAt, required SyncStatus syncStatus});
+  Future<Result<void>> setRemove(Contact contactToRemove);
 
   Future<Result<List<Contact>>> getAllDesynchronized();
 

@@ -141,16 +141,16 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
   }
 
   @override
-  Future<Result<void>> setRemove({required String id, required DateTime? updatedAt, required SyncStatus syncStatus}) async {
-    Logger.pContactOfflineDataSource('setRemove', {'id': id, 'updatedAt': updatedAt, 'syncStatus': syncStatus});
+  Future<Result<void>> setRemove(Contact contactToRemove) async {
+    Logger.pContactOfflineDataSource('setRemove', {'contactToRemove': contactToRemove});
 
     try {
       await _database.rawUpdate(
         'UPDATE ${Contact.tableName} SET ${Contact.columnUpdatedAt}=?, ${Contact.columnSyncStatus}=? WHERE ${Contact.columnId}=?',
         [
-          if (updatedAt == null) null else updatedAt.toIso8601String(),
-          syncStatus.name,
-          id,
+          if (contactToRemove.updatedAt == null) null else contactToRemove.updatedAt!.toIso8601String(),
+          contactToRemove.syncStatus.name,
+          contactToRemove.id,
         ],
       );
 
