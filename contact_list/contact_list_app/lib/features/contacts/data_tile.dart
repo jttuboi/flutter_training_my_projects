@@ -15,7 +15,7 @@ class DataTile extends StatelessWidget {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       child,
       if (showData) ...[
-      const SizedBox(height: 4),
+        const SizedBox(height: 4),
         CTextTile(title: 'id', text: contact.id),
         const SizedBox(height: 4),
         CTextTile(title: 'name', text: contact.name),
@@ -24,7 +24,7 @@ class DataTile extends StatelessWidget {
         const SizedBox(height: 4),
         CTextTile(title: 'documentUrl', text: contact.documentUrl),
         const SizedBox(height: 4),
-        CTextTile(title: 'avatarPhonePath', text: contact.avatarPhonePath),
+        CTextTile(title: 'avatarPhonePath', text: contact.avatarPhonePath ?? 'null'),
         const SizedBox(height: 4),
         CTextTile(title: 'documentPhonePath', text: contact.documentPhonePath),
         const SizedBox(height: 4),

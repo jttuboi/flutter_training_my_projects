@@ -8,7 +8,7 @@ class Contact with EquatableMixin {
     required this.name,
     required this.avatarUrl,
     required this.documentUrl,
-    this.avatarPhonePath = '',
+    this.avatarPhonePath,
     this.documentPhonePath = '',
     this.createdAt,
     this.updatedAt,
@@ -20,7 +20,7 @@ class Contact with EquatableMixin {
         name = '',
         avatarUrl = '',
         documentUrl = '',
-        avatarPhonePath = '',
+        avatarPhonePath = null,
         documentPhonePath = '',
         createdAt = null,
         updatedAt = null,
@@ -30,7 +30,7 @@ class Contact with EquatableMixin {
   final String name;
   final String avatarUrl;
   final String documentUrl;
-  final String avatarPhonePath;
+  final String? avatarPhonePath;
   final String documentPhonePath;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -48,7 +48,7 @@ class Contact with EquatableMixin {
       name: map[columnName] ?? '',
       avatarUrl: map[columnAvatarUrl] ?? '',
       documentUrl: map[columnDocumentUrl] ?? '',
-      avatarPhonePath: map[columnAvatarPhonePath] ?? '',
+      avatarPhonePath: map[columnAvatarPhonePath],
       documentPhonePath: map[columnDocumentPhonePath] ?? '',
       createdAt: DateTime.tryParse(map[columnCreatedAt] ?? ''),
       updatedAt: DateTime.tryParse(map[columnUpdatedAt] ?? ''),
@@ -130,7 +130,7 @@ class Contact with EquatableMixin {
         'name: $name, '
         'aUrl: ${avatarUrl.split('/').last}, '
         'dUrl: ${documentUrl.split('/').last}, '
-        'aPth: ${avatarPhonePath.split('/').last}, '
+        'aPth: ${avatarPhonePath?.split('/').last}, '
         'dPth: ${documentPhonePath.split('/').last}, '
         'crAt: ${createdAt?.toShortString()}, '
         'upAt: ${updatedAt?.toShortString()}, '

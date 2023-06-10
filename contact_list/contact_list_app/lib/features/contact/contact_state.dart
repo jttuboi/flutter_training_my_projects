@@ -1,42 +1,51 @@
 part of 'contact_cubit.dart';
 
 abstract class ContactState with EquatableMixin {
-  const ContactState({this.failure = const Failure.noFailure()});
+  const ContactState({
+    required this.isNew,
+    required this.originalContact,
+    this.temporaryAvatarPath,
+    this.successMessage = '',
+    this.failure = const Failure.noFailure(),
+  });
 
+  final bool isNew;
+  final Contact originalContact;
+  final String? temporaryAvatarPath;
+  final String successMessage;
   final Failure failure;
 
   @override
-  List<Object> get props => [failure];
+  List<Object?> get props => [isNew, originalContact, temporaryAvatarPath, successMessage, failure];
+
+  bool get isEdit => !isNew;
 }
 
 class ContactInitial extends ContactState {
-  const ContactInitial();
-}
-
-class ContactAdded extends ContactState {
-  const ContactAdded();
-}
-
-class ContactEdited extends ContactState {
-  const ContactEdited();
-}
-
-class ContactRemoved extends ContactState {
-  const ContactRemoved();
+  const ContactInitial({super.isNew = true, super.originalContact = const Contact.noData(), required super.temporaryAvatarPath});
 }
 
 class ContactLoading extends ContactState {
-  const ContactLoading();
+  ContactLoading(ContactState previousState)
+      : super(isNew: previousState.isNew, originalContact: previousState.originalContact, temporaryAvatarPath: previousState.temporaryAvatarPath);
 }
 
-class ContactValidationFailure extends ContactState {
-  const ContactValidationFailure({required super.failure});
+class ContactLoaded extends ContactState {
+  ContactLoaded(ContactState previousState, {super.successMessage = '', super.temporaryAvatarPath})
+      : super(isNew: previousState.isNew, originalContact: previousState.originalContact);
 }
 
-class ContactResetFailure extends ContactState {
-  const ContactResetFailure();
+class ContactMessageReseted extends ContactState {
+  ContactMessageReseted(ContactState previousState)
+      : super(isNew: previousState.isNew, originalContact: previousState.originalContact, temporaryAvatarPath: previousState.temporaryAvatarPath);
 }
 
 class ContactFailure extends ContactState {
-  const ContactFailure({required super.failure});
+  ContactFailure(ContactState previousState, {required super.failure})
+      : super(isNew: previousState.isNew, originalContact: previousState.originalContact, temporaryAvatarPath: previousState.temporaryAvatarPath);
+}
+
+class ContactValidationFailure extends ContactState {
+  ContactValidationFailure(ContactState previousState, {required super.failure})
+      : super(isNew: previousState.isNew, originalContact: previousState.originalContact, temporaryAvatarPath: previousState.temporaryAvatarPath);
 }

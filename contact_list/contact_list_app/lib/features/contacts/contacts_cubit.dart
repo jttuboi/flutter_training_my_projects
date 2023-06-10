@@ -88,20 +88,6 @@ class ContactsCubit extends Cubit<ContactsState> {
     });
   }
 
-  Future<void> setAvatarPhonePath(Contact contact, {required String avatarPhonePath}) async {
-    Logger.pContactsCubit('setAvatarPhonePath', {'contact': contact, 'avatarPhonePath': avatarPhonePath});
-
-    final index = state.contacts.indexWhere((c) => c.id == contact.id);
-    final contactUpdated = contact.copyWith(avatarPhonePath: avatarPhonePath);
-
-    // atualiza o database
-    await _repository.edit(contactUpdated);
-
-    // atualizar a tela
-    state.contacts[index] = contactUpdated;
-    emit(ContactsLoaded(contacts: state.contacts, currentPage: state.currentPage, isLastPage: state.isLastPage));
-  }
-
   Future<void> openDocument(Contact contact) async {
     Logger.pContactsCubit('openDocument', {'contact': contact});
 
@@ -116,7 +102,7 @@ class ContactsCubit extends Cubit<ContactsState> {
       final contactUpdated = contact.copyWith(documentPhonePath: documentPhonePath);
 
       // atualiza o database
-      await _repository.edit(contactUpdated);
+      // await _repository.edit(contactUpdated);
 
       // atualizar a tela
       state.contacts[index] = contactUpdated;

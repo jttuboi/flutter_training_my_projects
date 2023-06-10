@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../entities/contact.dart';
@@ -100,7 +99,6 @@ class _ContactsViewState extends State<ContactsView> with ContactDialogMixin, CS
                       onEdit: () async => _edit(context, contact),
                       onDelete: () async => _delete(context, contact),
                       onOpenDocument: () async => _openDocument(context, contact),
-                      onSetAvatarPhonePath: (fileInfo) async => _setAvatarPhonePath(context, fileInfo, contact),
                     )),
                 if (state is ContactsListLoading) ...[
                   const Padding(
@@ -151,11 +149,6 @@ class _ContactsViewState extends State<ContactsView> with ContactDialogMixin, CS
   // TODO arrumar melhor a estrutura do open document
   Future<void> _openDocument(BuildContext context, Contact contact) async {
     await context.read<ContactsCubit>().openDocument(contact);
-  }
-
-  // TODO arrumar a estrutura do avatar
-  Future<void> _setAvatarPhonePath(BuildContext context, FileInfo fileInfo, Contact contact) async {
-    await context.read<ContactsCubit>().setAvatarPhonePath(contact, avatarPhonePath: fileInfo.file.path);
   }
 
   Future<void> _refreshList(BuildContext context) async {

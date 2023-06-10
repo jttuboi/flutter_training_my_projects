@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:get_it/get_it.dart';
 import 'package:uuid/uuid.dart';
 
@@ -118,13 +122,31 @@ class ContactRepository {
   /// add contact to local database to late synchronize
   /// obs: after call this, must call synchronize
   ///
-  Future<Result<void>> add(Contact contact) async {
-    Logger.pContactRepository('add', {'contact': contact});
+  Future<Result<void>> add({required String name, required String? temporaryAvatarPath}) async {
+    Logger.pContactRepository('add', {'name': name, 'temporaryAvatarPath': temporaryAvatarPath});
 
-    // refaz o contact para status added
-    final contactToAdd = (contact.id.isEmpty || contact.createdAt == null || contact.syncStatus != SyncStatus.added)
-        ? contact.copyWith(id: const Uuid().v4(), createdAt: DateTime.now(), syncStatus: SyncStatus.added)
-        : contact;
+    final newId = const Uuid().v4();
+    String? avatarPhonePath;
+
+    // se tiver avatar adicionado na tela, então adiciona ele no cache
+    if (temporaryAvatarPath != null) {
+      final imageKey = newId;
+
+      final uint8List = await File(temporaryAvatarPath).readAsBytes();
+      final file = await DefaultCacheManager().putFile('', uint8List, key: imageKey);
+      avatarPhonePath = file.path;
+    }
+
+    final contactToAdd = Contact(
+      id: newId,
+      // TODO precisa ver sobre qndo atualizar esses campos
+      avatarUrl: '',
+      documentUrl: '',
+      name: name,
+      avatarPhonePath: avatarPhonePath,
+      createdAt: DateTime.now(),
+      syncStatus: SyncStatus.added,
+    );
 
     // salva o contato na base local
     return (await _offlineDataSource.create(contactToAdd)).result(
@@ -142,13 +164,34 @@ class ContactRepository {
   /// update contact to local database to late synchronize
   /// obs: after call this, must call synchronize
   ///
-  Future<Result<void>> edit(Contact contact) async {
-    Logger.pContactRepository('edit', {'contact': contact});
+  Future<Result<void>> edit(Contact originalContact, {required String name, required String? temporaryAvatarPath}) async {
+    Logger.pContactRepository('edit', {'originalContact': originalContact, 'name': name, 'temporaryAvatarPath': temporaryAvatarPath});
 
-    // refazer o contact para status updated
-    final contactToUpdate = (contact.updatedAt == null || contact.syncStatus != SyncStatus.updated)
-        ? contact.copyWith(updatedAt: DateTime.now(), syncStatus: SyncStatus.updated)
-        : contact;
+    var avatarPhonePath = originalContact.avatarPhonePath;
+
+    // se mudou o path, então atualiza ele no cache
+    if (originalContact.avatarPhonePath != temporaryAvatarPath) {
+      final imageKey = originalContact.id;
+
+      if (temporaryAvatarPath != null) {
+        await DefaultCacheManager().removeFile(imageKey);
+
+        final uint8List = await File(temporaryAvatarPath).readAsBytes();
+        final file = await DefaultCacheManager().putFile('', uint8List, key: imageKey);
+        avatarPhonePath = file.path;
+      } else {
+        // se não tem temporário, então ele removeu da tela
+        await DefaultCacheManager().removeFile(imageKey);
+        avatarPhonePath = null;
+      }
+    }
+
+    final contactToUpdate = originalContact.copyWith(
+      name: name,
+      avatarPhonePath: avatarPhonePath,
+      updatedAt: DateTime.now(),
+      syncStatus: SyncStatus.updated,
+    );
 
     // atualiza o contato na base local
     return (await _offlineDataSource.update(contactToUpdate)).result(
@@ -166,13 +209,14 @@ class ContactRepository {
   /// set to delete contact from local database to late synchronize
   /// obs: after call this, must call synchronize
   ///
-  Future<Result<void>> delete(Contact contact) async {
-    Logger.pContactRepository('delete', {'contact': contact});
+  Future<Result<void>> delete(Contact contactToDelete) async {
+    Logger.pContactRepository('delete', {'contact': contactToDelete});
 
     // refazer o contact para status removed
-    final contactToRemove = (contact.updatedAt == null || contact.syncStatus != SyncStatus.removed)
-        ? contact.copyWith(updatedAt: DateTime.now(), syncStatus: SyncStatus.removed)
-        : contact;
+    final contactToRemove = contactToDelete.copyWith(
+      updatedAt: DateTime.now(),
+      syncStatus: SyncStatus.removed,
+    );
 
     // deleta o contato na base local
     return (await _offlineDataSource.setRemove(contactToRemove)).result(

@@ -5,10 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../entities/contact.dart';
 import '../../failures/empty_name_validation_failure.dart';
-import '../../services/open/open.dart';
+import '../../services/pick/pick.dart';
+import '../../services/result/failure.dart';
 import '../../utils/strings.dart';
 import '../../widgets/after_first_frame_mixin.dart';
 import '../../widgets/c_attach_file.dart';
+import '../../widgets/c_avatar.dart';
 import '../../widgets/c_button.dart';
 import '../../widgets/c_icon_button.dart';
 import '../../widgets/c_snack_bar_mixin.dart';
@@ -16,8 +18,11 @@ import '../../widgets/c_text_field.dart';
 import 'contact_cubit.dart';
 
 mixin ContactDialogMixin {
-  /// - true se for salvo
-  /// - false se clicou em voltar ou fechou a dialog sem salvar os dados
+  /// Shows contact detail screen to add a new one or update it.
+  ///
+  /// returns
+  ///   true if is saved
+  ///   false if back clicked or dialog closed without save data
   Future<bool> showContactDialog(BuildContext context, {Contact contact = const Contact.noData()}) async {
     return await showDialog(
         context: context,
@@ -31,47 +36,41 @@ mixin ContactDialogMixin {
 
 class ContactDialog extends StatelessWidget {
   ContactDialog({Contact contact = const Contact.noData(), ContactCubit? contactCubit, super.key})
-      : _contact = contact,
-        _contactCubit = contactCubit ?? ContactCubit();
+      : _contactCubit = contactCubit ?? ContactCubit(contact);
 
-  final Contact _contact;
   final ContactCubit _contactCubit;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ContactCubit>(
       create: (_) => _contactCubit,
-      child: ContactView(contact: _contact),
+      child: const ContactView(),
     );
   }
 }
 
 class ContactView extends StatefulWidget {
-  const ContactView({this.contact = const Contact.noData(), super.key});
-
-  final Contact contact;
+  const ContactView({super.key});
 
   @override
   State<ContactView> createState() => _ContactViewState();
 }
 
 class _ContactViewState extends State<ContactView> with AfterFirstFrameMixin, CSnackBarMixin {
-  final _avatarPathNotifier = ValueNotifier<String>('');
   final _nameController = TextEditingController();
   final _documentPathNotifier = ValueNotifier<String>('');
 
   @override
   FutureOr<void> afterFirstFrame(BuildContext context) {
-    if (widget.contact.hasData) {
-      _avatarPathNotifier.value = widget.contact.avatarPhonePath;
-      _nameController.text = widget.contact.name;
-      _documentPathNotifier.value = widget.contact.documentPhonePath;
+    final state = context.read<ContactCubit>().state;
+    if (state is ContactInitial && state.isEdit) {
+      _nameController.text = state.originalContact.name;
+      _documentPathNotifier.value = state.originalContact.documentPhonePath;
     }
   }
 
   @override
   void dispose() {
-    _avatarPathNotifier.dispose();
     _nameController.dispose();
     _documentPathNotifier.dispose();
     super.dispose();
@@ -79,118 +78,135 @@ class _ContactViewState extends State<ContactView> with AfterFirstFrameMixin, CS
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-        onWillPop: () async {
-          await _onBackPressed(context);
-          return false;
-        },
-        child: AlertDialog(
-          iconPadding: EdgeInsets.zero,
-          titlePadding: EdgeInsets.zero,
-          contentPadding: EdgeInsets.zero,
-          actionsPadding: EdgeInsets.zero,
-          buttonPadding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          content: Stack(
-            children: [
-              Positioned(
-                top: 8,
-                right: 8,
-                child: CIconButton(icon: Icons.close_outlined, onPressed: () async => _onBackPressed(context)),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 32, bottom: 16),
-                child: BlocConsumer<ContactCubit, ContactState>(
-                  listener: (_, state) {
-                    if (state is ContactFailure) {
-                      showSnackBarForError(context, text: state.failure.messageForUser);
-                    } else if (state is ContactAdded) {
-                      showSnackBarForSuccess(context, text: Strings.contactAddMessage);
-                    } else if (state is ContactEdited) {
-                      showSnackBarForSuccess(context, text: Strings.contactEditMessage);
-                    } else if (state is ContactRemoved) {
-                      showSnackBarForSuccess(context, text: Strings.contactDeleteMessage);
-                    }
-                  },
-                  builder: (_, state) {
-                    return Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          const SizedBox(),
-                          Container(
-                            width: 120,
-                            height: 120,
-                            color: Colors.grey.shade200,
-                            child: const Icon(Icons.person, size: 120, color: Colors.grey),
-                          ),
-                          if (widget.contact.hasData) CButton.icon(Icons.delete, onPressed: () async => _delete(context)) else const SizedBox(),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: CTextField(
-                          title: Strings.contactName,
-                          textController: _nameController,
-                          validationMessageError: (state is ContactValidationFailure && state.failure == const EmptyNameValidationFailure())
-                              ? state.failure.messageForUser
-                              : null,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: CAttachFile(
-                          title: Strings.contactDocument,
-                          hint: Strings.contactDocumentHint,
-                          icon: Icons.picture_as_pdf_outlined,
-                          filePathNotifier: _documentPathNotifier,
-                          onPressed: _pickPdf,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      ValueListenableBuilder<TextEditingValue>(
-                          valueListenable: _nameController,
-                          builder: (_, name, __) {
-                            return CButton(
-                              Strings.contactSave,
-                              onPressed: name.text.isNotEmpty ? () async => _save(context) : null,
-                            );
-                          }),
-                    ]);
-                  },
+    return BlocListener<ContactCubit, ContactState>(
+      listener: (_, state) async {
+        if (state is ContactFailure) {
+          showSnackBarForError(context, text: state.failure.messageForUser);
+        } else if (state is ContactLoaded && state.successMessage.isNotEmpty) {
+          showSnackBarForSuccess(context, text: state.successMessage);
+        }
+      },
+      child: WillPopScope(
+          onWillPop: () async {
+            await _onBackPressed(context);
+            return false;
+          },
+          child: AlertDialog(
+            iconPadding: EdgeInsets.zero,
+            titlePadding: EdgeInsets.zero,
+            contentPadding: EdgeInsets.zero,
+            actionsPadding: EdgeInsets.zero,
+            buttonPadding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            content: Stack(
+              children: [
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: CIconButton(
+                    icon: Icons.close_outlined,
+                    onPressed: () => _onBackPressed(context),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ));
+                Padding(
+                  padding: const EdgeInsets.only(top: 32, bottom: 16),
+                  child: Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
+                    BlocSelector<ContactCubit, ContactState, bool>(
+                      selector: (state) => state.isEdit,
+                      builder: (_, isEdit) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            const SizedBox(),
+                            BlocSelector<ContactCubit, ContactState, String?>(
+                              selector: (state) => state.temporaryAvatarPath,
+                              builder: (_, temporaryAvatarPath) {
+                                return GestureDetector(
+                                  onTap: () => _pickAvatar(context),
+                                  child: CAvatar(temporaryAvatarPath, size: 120),
+                                );
+                              },
+                            ),
+                            if (isEdit)
+                              CButton.icon(
+                                Icons.delete,
+                                onPressed: () => _deleteContact(context),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    BlocSelector<ContactCubit, ContactState, Failure>(
+                      selector: (state) => state.failure,
+                      builder: (_, failure) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: CTextField(
+                            title: Strings.contactName,
+                            textController: _nameController,
+                            validationMessageError: (failure == const EmptyNameValidationFailure()) ? failure.messageForUser : null,
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: CAttachFile(
+                        title: Strings.contactDocument,
+                        hint: Strings.contactDocumentHint,
+                        icon: Icons.picture_as_pdf_outlined,
+                        filePathNotifier: _documentPathNotifier,
+                        onPressed: _pickPdf,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ValueListenableBuilder<TextEditingValue>(
+                        valueListenable: _nameController,
+                        builder: (_, name, __) {
+                          return CButton(
+                            Strings.contactSave,
+                            onPressed: name.text.isNotEmpty ? () => _saveContact(context) : null,
+                          );
+                        }),
+                  ]),
+                ),
+              ],
+            ),
+          )),
+    );
+  }
+
+  Future<void> _pickAvatar(BuildContext context) async {
+    await Pick.image().then((imagePath) async {
+      if (imagePath.isNotEmpty) {
+        await context.read<ContactCubit>().setTemporaryAvatar(temporaryAvatarPath: imagePath);
+      }
+    });
   }
 
   Future<void> _pickPdf() async {
-    final filePath = await Open.pickPdf();
+    // TODO arrumar aqui
+    final filePath = await Pick.pdf();
     _documentPathNotifier.value = filePath;
   }
 
-  Future<void> _save(BuildContext context) async {
+  Future<void> _saveContact(BuildContext context) async {
     FocusScope.of(context).unfocus();
     await context
         .read<ContactCubit>()
         .save(
-          contact: widget.contact.copyWith(
-            name: _nameController.text,
-            avatarPhonePath: _avatarPathNotifier.value,
-            documentPhonePath: _documentPathNotifier.value,
-          ),
-          isNew: widget.contact.hasNotData,
+          name: _nameController.text,
+          documentPhonePath: _documentPathNotifier.value,
         )
         .then((_) async {
       await _onEntityModified(context);
     });
   }
 
-  Future<void> _delete(BuildContext context) async {
-    await context.read<ContactCubit>().delete(contact: widget.contact).then((_) async {
+  Future<void> _deleteContact(BuildContext context) async {
+    await context.read<ContactCubit>().delete().then((_) async {
       await _onEntityModified(context);
     });
   }

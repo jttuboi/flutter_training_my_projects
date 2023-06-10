@@ -1,47 +1,45 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../entities/contact.dart';
 import '../../utils/strings.dart';
 import '../../utils/typedefs.dart';
+import '../../widgets/after_first_frame_mixin.dart';
+import '../../widgets/c_avatar.dart';
 import '../../widgets/c_button.dart';
-import '../../widgets/c_default_avatar.dart';
 import '../../widgets/c_snack_bar_mixin.dart';
-import '../../widgets/default_widget_for_cache_manager.dart';
 import '../contact/contact_dialog_mixin.dart';
 import 'data_tile.dart';
 
 class ContactTile extends StatefulWidget {
   const ContactTile(this.contact,
-      {this.initialShowData = false,
-      required this.onEdit,
-      required this.onDelete,
-      required this.onOpenDocument,
-      required this.onSetAvatarPhonePath,
-      super.key});
+      {this.initialShowData = false, required this.onEdit, required this.onDelete, required this.onOpenDocument, super.key});
 
   final Contact contact;
   final bool initialShowData;
   final FunctionCallback onEdit;
   final FunctionCallback onDelete;
   final FunctionCallback onOpenDocument;
-  final FunctionFileInfoCallback onSetAvatarPhonePath;
 
   @override
   State<ContactTile> createState() => _ContactTileState();
 }
 
-class _ContactTileState extends State<ContactTile> with ContactDialogMixin, CSnackBarMixin {
-  late final ValueNotifier<bool> _showData;
+class _ContactTileState extends State<ContactTile> with AfterFirstFrameMixin, ContactDialogMixin, CSnackBarMixin {
+  final _showData = ValueNotifier<bool>(false);
+  final _avatarKeyNotifier = ValueNotifier<String>('');
 
   @override
-  void initState() {
-    super.initState();
-    _showData = ValueNotifier<bool>(widget.initialShowData);
+  FutureOr<void> afterFirstFrame(BuildContext context) {
+    _showData.value = widget.initialShowData;
+    _avatarKeyNotifier.value = widget.contact.id;
   }
 
   @override
   void dispose() {
     _showData.dispose();
+    _avatarKeyNotifier.dispose();
     super.dispose();
   }
 
@@ -61,25 +59,7 @@ class _ContactTileState extends State<ContactTile> with ContactDialogMixin, CSna
           );
         },
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          DefaultWidgetForCacheManager(
-            url: widget.contact.avatarUrl,
-            setLoadingWidget: (progress) {
-              return const CDefaultAvatar();
-            },
-            setErrorWidget: (error) {
-              return const CDefaultAvatar();
-            },
-            setShowFileWidget: (fileInfo) {
-              if (fileInfo == null) {
-                return const CDefaultAvatar();
-              }
-              widget.onSetAvatarPhonePath(fileInfo);
-              return Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                Image.file(fileInfo.file, width: 100, height: 100),
-                const SizedBox(width: 4),
-              ]);
-            },
-          ),
+          CAvatar(widget.contact.avatarPhonePath),
           const SizedBox(width: 4),
           Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(Strings.contactsName(name: widget.contact.name, syncStatus: widget.contact.syncStatus.name)),

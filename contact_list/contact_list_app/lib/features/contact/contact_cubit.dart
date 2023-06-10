@@ -6,53 +6,70 @@ import '../../failures/empty_name_validation_failure.dart';
 import '../../repositories/contact_repository.dart';
 import '../../services/result/failure.dart';
 import '../../utils/logger.dart';
+import '../../utils/strings.dart';
 
 part 'contact_state.dart';
 
 class ContactCubit extends Cubit<ContactState> {
-  ContactCubit({ContactRepository? repository})
-      : _repository = repository ?? ContactRepository(),
-        super(const ContactInitial());
+  ContactCubit(Contact contact, {ContactRepository? repository})
+      : _contactRepository = repository ?? ContactRepository(),
+        super(ContactInitial(isNew: contact.hasNotData, originalContact: contact, temporaryAvatarPath: contact.avatarPhonePath));
 
-  final ContactRepository _repository;
+  final ContactRepository _contactRepository;
 
-  Future<void> save({required Contact contact, required bool isNew}) async {
-    Logger.pContactCubit('save', {'contact': contact, 'isNew': isNew});
+  Future<void> save({required String name, required String documentPhonePath}) async {
+    Logger.pContactCubit('save', {'name': name, 'documentPhonePath': documentPhonePath});
 
-    if (contact.name.trim().isEmpty) {
-      emit(const ContactValidationFailure(failure: EmptyNameValidationFailure()));
+    if (name.trim().isEmpty) {
+      emit(ContactFailure(state, failure: const EmptyNameValidationFailure()));
       return;
     }
 
-    emit(const ContactLoading());
+    emit(ContactLoading(state));
 
-    if (isNew) {
-      (await _repository.add(contact)).result((_) {
-        emit(const ContactAdded());
+    if (state.isNew) {
+      (await _contactRepository.add(name: name, temporaryAvatarPath: state.temporaryAvatarPath)).result((_) {
+        emit(ContactLoaded(state, successMessage: Strings.contactAddMessage));
       }, (failure) {
-        emit(ContactFailure(failure: failure));
-        emit(const ContactResetFailure());
+        emit(ContactFailure(state, failure: failure));
       });
     } else {
-      (await _repository.edit(contact)).result((_) {
-        emit(const ContactEdited());
+      (await _contactRepository.edit(state.originalContact, name: name, temporaryAvatarPath: state.temporaryAvatarPath)).result((_) {
+        emit(ContactLoaded(state, successMessage: Strings.contactEditMessage));
       }, (failure) {
-        emit(ContactFailure(failure: failure));
-        emit(const ContactResetFailure());
+        emit(ContactFailure(state, failure: failure));
       });
     }
+
+    emit(ContactMessageReseted(state));
   }
 
-  Future<void> delete({required Contact contact}) async {
-    Logger.pContactCubit('delete', {'contact': contact});
+  Future<void> delete() async {
+    Logger.pContactCubit('delete');
 
-    emit(const ContactLoading());
+    emit(ContactLoading(state));
 
-    (await _repository.delete(contact)).result((_) {
-      emit(const ContactRemoved());
+    (await _contactRepository.delete(state.originalContact)).result((_) {
+      emit(ContactLoaded(state, successMessage: Strings.contactDeleteMessage));
     }, (failure) {
-      emit(ContactFailure(failure: failure));
-      emit(const ContactResetFailure());
+      emit(ContactFailure(state, failure: failure));
     });
+
+    emit(ContactMessageReseted(state));
+  }
+
+  Future<void> setTemporaryAvatar({required String temporaryAvatarPath}) async {
+    Logger.pContactCubit('setTemporaryAvatar', {'temporaryAvatarPath': temporaryAvatarPath});
+
+    try {
+      if (temporaryAvatarPath.isNotEmpty) {
+        emit(ContactLoaded(state, temporaryAvatarPath: temporaryAvatarPath));
+      }
+    } catch (_) {
+      // TODO
+      emit(ContactFailure(state, failure: const Failure(tag: '', messageForUser: '')));
+    }
+
+    emit(ContactMessageReseted(state));
   }
 }
