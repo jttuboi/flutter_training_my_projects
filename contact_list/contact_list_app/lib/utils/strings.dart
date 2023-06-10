@@ -3,6 +3,11 @@ class Strings {
 
   static const contacts = 'Contacts';
   static const contactsDesynchronized = 'Os contatos podem estar desincronizados, para atualizar conecte na internet.';
+  static String contactsName({required String name, required String syncStatus}) {
+    return '$name ($syncStatus)';
+  }
+
+  static const contactsShowData = 'Show data';
   static String contactsOpenDocument(String path) {
     final paths = path.split('/');
     final fullName = paths.last;

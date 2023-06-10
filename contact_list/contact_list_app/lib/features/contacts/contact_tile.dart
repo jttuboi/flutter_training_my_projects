@@ -48,11 +48,17 @@ class _ContactTileState extends State<ContactTile> with ContactDialogMixin, CSna
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ValueListenableBuilder<bool>(
         valueListenable: _showData,
         builder: (_, showData, child) {
-          return DataTile(widget.contact, showData: showData, child: child!);
+          return Column(
+            children: [
+              DataTile(widget.contact, showData: showData, child: child!),
+              const SizedBox(height: 8),
+              const Divider(height: 1, thickness: 1, color: Colors.grey),
+            ],
+          );
         },
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           DefaultWidgetForCacheManager(
@@ -76,14 +82,12 @@ class _ContactTileState extends State<ContactTile> with ContactDialogMixin, CSna
           ),
           const SizedBox(width: 4),
           Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('${widget.contact.name} (${widget.contact.syncStatus.name})'),
+            Text(Strings.contactsName(name: widget.contact.name, syncStatus: widget.contact.syncStatus.name)),
             const SizedBox(height: 4),
             if (widget.contact.documentUrl.isNotEmpty)
               CButton(Strings.contactsOpenDocument(widget.contact.documentPhonePath), onPressed: widget.onOpenDocument),
             const SizedBox(height: 4),
-            CButton('Show data', onPressed: () {
-              _showData.value = !_showData.value;
-            }),
+            CButton(Strings.contactsShowData, onPressed: _onShowDataPressed),
           ]),
           const Spacer(),
           Column(children: [
@@ -94,5 +98,9 @@ class _ContactTileState extends State<ContactTile> with ContactDialogMixin, CSna
         ]),
       ),
     );
+  }
+
+  void _onShowDataPressed() {
+    _showData.value = !_showData.value;
   }
 }

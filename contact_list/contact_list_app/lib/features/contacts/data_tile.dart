@@ -14,8 +14,8 @@ class DataTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       child,
-      const SizedBox(height: 4),
       if (showData) ...[
+      const SizedBox(height: 4),
         CTextTile(title: 'id', text: contact.id),
         const SizedBox(height: 4),
         CTextTile(title: 'name', text: contact.name),
@@ -28,15 +28,12 @@ class DataTile extends StatelessWidget {
         const SizedBox(height: 4),
         CTextTile(title: 'documentPhonePath', text: contact.documentPhonePath),
         const SizedBox(height: 4),
-        CTextTile(title: 'createdAt', text: contact.createdAt?.toIso8601String() ?? ''),
+        CTextTile(title: 'createdAt', text: contact.createdAt?.toIso8601String() ?? 'null'),
         const SizedBox(height: 4),
-        CTextTile(title: 'updatedAt', text: contact.updatedAt?.toIso8601String() ?? ''),
+        CTextTile(title: 'updatedAt', text: contact.updatedAt?.toIso8601String() ?? 'null'),
         const SizedBox(height: 4),
         CTextTile(title: 'syncStatus', text: contact.syncStatus.name),
-        const SizedBox(height: 4),
       ],
-      const Divider(height: 1, thickness: 1, color: Colors.grey),
-      const SizedBox(height: 8),
     ]);
   }
 }
