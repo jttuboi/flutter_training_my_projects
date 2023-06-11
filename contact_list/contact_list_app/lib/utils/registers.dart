@@ -42,7 +42,6 @@ Future<void> registers() async {
                       ${Contact.columnName} TEXT NOT NULL,
                       ${Contact.columnAvatarUrl} TEXT,
                       ${Contact.columnDocumentUrl} TEXT,
-                      ${Contact.columnAvatarPhonePath} TEXT,
                       ${Contact.columnDocumentPhonePath} TEXT,
                       ${Contact.columnCreatedAt} TEXT NULL,
                       ${Contact.columnUpdatedAt} TEXT NULL,

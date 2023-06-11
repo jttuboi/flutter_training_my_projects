@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -13,7 +15,7 @@ part 'contact_state.dart';
 class ContactCubit extends Cubit<ContactState> {
   ContactCubit(Contact contact, {ContactRepository? repository})
       : _contactRepository = repository ?? ContactRepository(),
-        super(ContactInitial(isNew: contact.hasNotData, originalContact: contact, temporaryAvatarPath: contact.avatarPhonePath));
+        super(ContactInitial(isNew: contact.hasNotData, originalContact: contact, temporaryAvatarFile: contact.avatarFile));
 
   final ContactRepository _contactRepository;
 
@@ -28,13 +30,13 @@ class ContactCubit extends Cubit<ContactState> {
     emit(ContactLoading(state));
 
     if (state.isNew) {
-      (await _contactRepository.add(name: name, temporaryAvatarPath: state.temporaryAvatarPath)).result((_) {
+      (await _contactRepository.add(name: name, temporaryAvatarFile: state.temporaryAvatarFile)).result((_) {
         emit(ContactLoaded(state, successMessage: Strings.contactAddMessage));
       }, (failure) {
         emit(ContactFailure(state, failure: failure));
       });
     } else {
-      (await _contactRepository.edit(state.originalContact, name: name, temporaryAvatarPath: state.temporaryAvatarPath)).result((_) {
+      (await _contactRepository.edit(state.originalContact, name: name, temporaryAvatarFile: state.temporaryAvatarFile)).result((_) {
         emit(ContactLoaded(state, successMessage: Strings.contactEditMessage));
       }, (failure) {
         emit(ContactFailure(state, failure: failure));
@@ -63,7 +65,7 @@ class ContactCubit extends Cubit<ContactState> {
 
     try {
       if (temporaryAvatarPath.isNotEmpty) {
-        emit(ContactLoaded(state, temporaryAvatarPath: temporaryAvatarPath));
+        emit(ContactLoaded(state, temporaryAvatarFile: File(temporaryAvatarPath)));
       }
     } catch (_) {
       // TODO

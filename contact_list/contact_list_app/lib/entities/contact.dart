@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 
 import 'sync_status.dart';
@@ -8,11 +10,11 @@ class Contact with EquatableMixin {
     required this.name,
     required this.avatarUrl,
     required this.documentUrl,
-    this.avatarPhonePath,
     this.documentPhonePath = '',
     this.createdAt,
     this.updatedAt,
     this.syncStatus = SyncStatus.synced,
+    this.avatarFile,
   });
 
   const Contact.noData()
@@ -20,24 +22,25 @@ class Contact with EquatableMixin {
         name = '',
         avatarUrl = '',
         documentUrl = '',
-        avatarPhonePath = null,
         documentPhonePath = '',
         createdAt = null,
         updatedAt = null,
-        syncStatus = SyncStatus.synced;
+        syncStatus = SyncStatus.synced,
+        avatarFile = null;
 
   final String id;
   final String name;
   final String avatarUrl;
   final String documentUrl;
-  final String? avatarPhonePath;
   final String documentPhonePath;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final SyncStatus syncStatus;
 
+  final File? avatarFile;
+
   @override
-  List<Object?> get props => [id, name, avatarUrl, documentUrl, avatarPhonePath, documentPhonePath, createdAt, updatedAt, syncStatus];
+  List<Object?> get props => [id, name, avatarUrl, documentUrl, documentPhonePath, createdAt, updatedAt, syncStatus, avatarFile];
 
   @override
   bool? get stringify => true;
@@ -48,7 +51,6 @@ class Contact with EquatableMixin {
       name: map[columnName] ?? '',
       avatarUrl: map[columnAvatarUrl] ?? '',
       documentUrl: map[columnDocumentUrl] ?? '',
-      avatarPhonePath: map[columnAvatarPhonePath],
       documentPhonePath: map[columnDocumentPhonePath] ?? '',
       createdAt: DateTime.tryParse(map[columnCreatedAt] ?? ''),
       updatedAt: DateTime.tryParse(map[columnUpdatedAt] ?? ''),
@@ -62,7 +64,6 @@ class Contact with EquatableMixin {
       columnName: name,
       columnAvatarUrl: avatarUrl,
       columnDocumentUrl: documentUrl,
-      columnAvatarPhonePath: avatarPhonePath,
       columnDocumentPhonePath: documentPhonePath,
       columnCreatedAt: createdAt?.toIso8601String(),
       columnUpdatedAt: updatedAt?.toIso8601String(),
@@ -75,7 +76,6 @@ class Contact with EquatableMixin {
   static const columnName = 'name';
   static const columnAvatarUrl = 'avatar_url';
   static const columnDocumentUrl = 'document_url';
-  static const columnAvatarPhonePath = 'avatar_phone_path';
   static const columnDocumentPhonePath = 'document_phone_path';
   static const columnCreatedAt = 'created_at';
   static const columnUpdatedAt = 'updated_at';
@@ -90,22 +90,22 @@ class Contact with EquatableMixin {
     String? name,
     String? avatarUrl,
     String? documentUrl,
-    String? avatarPhonePath,
     String? documentPhonePath,
     DateTime? createdAt,
     DateTime? updatedAt,
     SyncStatus? syncStatus,
+    File? avatarFile,
   }) {
     return Contact(
       id: id ?? this.id,
       name: name ?? this.name,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       documentUrl: documentUrl ?? this.documentUrl,
-      avatarPhonePath: avatarPhonePath ?? this.avatarPhonePath,
       documentPhonePath: documentPhonePath ?? this.documentPhonePath,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       syncStatus: syncStatus ?? this.syncStatus,
+      avatarFile: avatarFile ?? this.avatarFile,
     );
   }
 
@@ -116,11 +116,11 @@ class Contact with EquatableMixin {
         'name: $name, '
         'avatarUrl: $avatarUrl, '
         'documentUrl: $documentUrl, '
-        'avatarPhonePath: $avatarPhonePath, '
         'documentPhonePath: $documentPhonePath, '
         'createdAt: $createdAt, '
         'updatedAt: $updatedAt, '
-        'syncStatus: $syncStatus'
+        'syncStatus: $syncStatus, '
+        'avatarPhonePath: $avatarFile'
         ')';
   }
 
@@ -130,11 +130,11 @@ class Contact with EquatableMixin {
         'name: $name, '
         'aUrl: ${avatarUrl.split('/').last}, '
         'dUrl: ${documentUrl.split('/').last}, '
-        'aPth: ${avatarPhonePath?.split('/').last}, '
         'dPth: ${documentPhonePath.split('/').last}, '
         'crAt: ${createdAt?.toShortString()}, '
         'upAt: ${updatedAt?.toShortString()}, '
-        'sySt: ${syncStatus.name}'
+        'sySt: ${syncStatus.name}, '
+        'aFil: ${avatarFile?.path}, '
         ')';
   }
 }

@@ -92,7 +92,20 @@ class ContactRepository {
   Future<Result<({List<Contact> contacts, Meta meta})>> getAll({bool perPage = true, int page = 0}) async {
     Logger.pContactRepository('getAll', {'perPage': perPage, 'page': page});
 
-    return _offlineDataSource.getAll(perPage: perPage, page: page);
+    return (await _offlineDataSource.getAll(perPage: perPage, page: page)).result((r) async {
+      final contactsUpdated = <Contact>[];
+
+      for (final contactToUpdate in r.contacts) {
+        contactsUpdated.add(await _getContactWithAvatarFromCache(contactToUpdate));
+      }
+
+      return Success((
+        contacts: contactsUpdated,
+        meta: r.meta,
+      ));
+    }, (failure) {
+      return Fail(failure);
+    });
   }
 
   ///
@@ -103,11 +116,7 @@ class ContactRepository {
     Logger.pContactRepository('deleteAll');
 
     // refaz os contatos para status removed
-    return (await _offlineDataSource.setToRemoveAll(
-      updatedAt: DateTime.now(),
-      syncStatus: SyncStatus.removed,
-    ))
-        .result(
+    return (await _offlineDataSource.setToRemoveAll(updatedAt: DateTime.now(), syncStatus: SyncStatus.removed)).result(
       (_) async {
         // desincroniza para posteriormente atualizar a lista através da sincronização
         await _offlineDataSource.desynchronizeList();
@@ -122,31 +131,22 @@ class ContactRepository {
   /// add contact to local database to late synchronize
   /// obs: after call this, must call synchronize
   ///
-  Future<Result<void>> add({required String name, required String? temporaryAvatarPath}) async {
-    Logger.pContactRepository('add', {'name': name, 'temporaryAvatarPath': temporaryAvatarPath});
+  Future<Result<void>> add({required String name, required File? temporaryAvatarFile}) async {
+    Logger.pContactRepository('add', {'name': name, 'temporaryAvatarFile': temporaryAvatarFile?.path});
 
     final newId = const Uuid().v4();
-    String? avatarPhonePath;
 
-    // se tiver avatar adicionado na tela, então adiciona ele no cache
-    if (temporaryAvatarPath != null) {
-      final imageKey = newId;
-
-      final uint8List = await File(temporaryAvatarPath).readAsBytes();
-      final file = await DefaultCacheManager().putFile('', uint8List, key: imageKey);
-      avatarPhonePath = file.path;
-    }
-
-    final contactToAdd = Contact(
+    final contactBeforeAddAvatar = Contact(
       id: newId,
       // TODO precisa ver sobre qndo atualizar esses campos
       avatarUrl: '',
       documentUrl: '',
       name: name,
-      avatarPhonePath: avatarPhonePath,
       createdAt: DateTime.now(),
       syncStatus: SyncStatus.added,
     );
+
+    final contactToAdd = await _addAvatarToCache(contactBeforeAddAvatar, temporaryAvatarFile: temporaryAvatarFile);
 
     // salva o contato na base local
     return (await _offlineDataSource.create(contactToAdd)).result(
@@ -164,34 +164,16 @@ class ContactRepository {
   /// update contact to local database to late synchronize
   /// obs: after call this, must call synchronize
   ///
-  Future<Result<void>> edit(Contact originalContact, {required String name, required String? temporaryAvatarPath}) async {
-    Logger.pContactRepository('edit', {'originalContact': originalContact, 'name': name, 'temporaryAvatarPath': temporaryAvatarPath});
+  Future<Result<void>> edit(Contact originalContact, {required String name, required File? temporaryAvatarFile}) async {
+    Logger.pContactRepository('edit', {'originalContact': originalContact, 'name': name, 'temporaryAvatarFile': temporaryAvatarFile?.path});
 
-    var avatarPhonePath = originalContact.avatarPhonePath;
-
-    // se mudou o path, então atualiza ele no cache
-    if (originalContact.avatarPhonePath != temporaryAvatarPath) {
-      final imageKey = originalContact.id;
-
-      if (temporaryAvatarPath != null) {
-        await DefaultCacheManager().removeFile(imageKey);
-
-        final uint8List = await File(temporaryAvatarPath).readAsBytes();
-        final file = await DefaultCacheManager().putFile('', uint8List, key: imageKey);
-        avatarPhonePath = file.path;
-      } else {
-        // se não tem temporário, então ele removeu da tela
-        await DefaultCacheManager().removeFile(imageKey);
-        avatarPhonePath = null;
-      }
-    }
-
-    final contactToUpdate = originalContact.copyWith(
+    final contactBeforeUpdateAvatar = originalContact.copyWith(
       name: name,
-      avatarPhonePath: avatarPhonePath,
       updatedAt: DateTime.now(),
       syncStatus: SyncStatus.updated,
     );
+
+    final contactToUpdate = await _updateAvatarInCache(contactBeforeUpdateAvatar, temporaryAvatarFile: temporaryAvatarFile);
 
     // atualiza o contato na base local
     return (await _offlineDataSource.update(contactToUpdate)).result(
@@ -228,5 +210,49 @@ class ContactRepository {
       },
       (failure) async => Fail(failure),
     );
+  }
+
+  Future<Contact> _getContactWithAvatarFromCache(Contact contact) async {
+    final imageKey = contact.id;
+
+    final fileInfo = await DefaultCacheManager().getFileFromCache(imageKey);
+
+    return contact.copyWith(avatarFile: fileInfo?.file);
+  }
+
+  Future<Contact> _addAvatarToCache(Contact contact, {String avatarUrl = '', required File? temporaryAvatarFile}) async {
+    File? avatarFileToAdd;
+
+    // se tiver avatar adicionado na tela, então adiciona ele no cache
+    if (temporaryAvatarFile != null) {
+      final imageKey = contact.id;
+
+      final uint8List = await temporaryAvatarFile.readAsBytes();
+      avatarFileToAdd = await DefaultCacheManager().putFile(avatarUrl, uint8List, key: imageKey);
+    }
+
+    return contact.copyWith(avatarUrl: avatarUrl, avatarFile: avatarFileToAdd);
+  }
+
+  Future<Contact> _updateAvatarInCache(Contact contact, {String avatarUrl = '', required File? temporaryAvatarFile}) async {
+    var avatarFileToUpdate = temporaryAvatarFile;
+
+    // se mudou o path, então atualiza ele no cache
+    if (contact.avatarFile?.path != avatarFileToUpdate?.path) {
+      final imageKey = contact.id;
+
+      if (avatarFileToUpdate != null) {
+        await DefaultCacheManager().removeFile(imageKey);
+
+        final uint8List = await avatarFileToUpdate.readAsBytes();
+        avatarFileToUpdate = await DefaultCacheManager().putFile(avatarUrl, uint8List, key: imageKey);
+      } else {
+        // se não tem temporário, então ele removeu da tela
+        await DefaultCacheManager().removeFile(imageKey);
+        avatarFileToUpdate = null;
+      }
+    }
+
+    return contact.copyWith(avatarUrl: avatarUrl, avatarFile: avatarFileToUpdate);
   }
 }

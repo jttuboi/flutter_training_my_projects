@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -118,12 +119,12 @@ class _ContactViewState extends State<ContactView> with AfterFirstFrameMixin, CS
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             const SizedBox(),
-                            BlocSelector<ContactCubit, ContactState, String?>(
-                              selector: (state) => state.temporaryAvatarPath,
-                              builder: (_, temporaryAvatarPath) {
+                            BlocSelector<ContactCubit, ContactState, File?>(
+                              selector: (state) => state.temporaryAvatarFile,
+                              builder: (_, temporaryAvatarFile) {
                                 return GestureDetector(
                                   onTap: () => _pickAvatar(context),
-                                  child: CAvatar(temporaryAvatarPath, size: 120),
+                                  child: CAvatar(temporaryAvatarFile, size: 120),
                                 );
                               },
                             ),

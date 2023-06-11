@@ -94,13 +94,12 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
 
     try {
       await _database.rawInsert(
-          'INSERT INTO ${Contact.tableName}(${Contact.columnId}, ${Contact.columnName}, ${Contact.columnAvatarUrl}, ${Contact.columnDocumentUrl}, ${Contact.columnAvatarPhonePath}, ${Contact.columnDocumentPhonePath}, ${Contact.columnCreatedAt}, ${Contact.columnUpdatedAt}, ${Contact.columnSyncStatus}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'INSERT INTO ${Contact.tableName}(${Contact.columnId}, ${Contact.columnName}, ${Contact.columnAvatarUrl}, ${Contact.columnDocumentUrl}, ${Contact.columnDocumentPhonePath}, ${Contact.columnCreatedAt}, ${Contact.columnUpdatedAt}, ${Contact.columnSyncStatus}) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
           [
             contactToAdd.id,
             contactToAdd.name,
             contactToAdd.avatarUrl,
             contactToAdd.documentUrl,
-            contactToAdd.avatarPhonePath,
             contactToAdd.documentPhonePath,
             if (contactToAdd.createdAt == null) null else contactToAdd.createdAt!.toIso8601String(),
             if (contactToAdd.updatedAt == null) null else contactToAdd.updatedAt!.toIso8601String(),
@@ -119,13 +118,12 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
 
     try {
       await _database.rawUpdate(
-        'UPDATE ${Contact.tableName} SET ${Contact.columnId}=?, ${Contact.columnName}=?, ${Contact.columnAvatarUrl}=?, ${Contact.columnDocumentUrl}=?, ${Contact.columnAvatarPhonePath}=?, ${Contact.columnDocumentPhonePath}=?, ${Contact.columnCreatedAt}=?, ${Contact.columnUpdatedAt}=?, ${Contact.columnSyncStatus}=? WHERE ${Contact.columnId}=?',
+        'UPDATE ${Contact.tableName} SET ${Contact.columnId}=?, ${Contact.columnName}=?, ${Contact.columnAvatarUrl}=?, ${Contact.columnDocumentUrl}=?, ${Contact.columnDocumentPhonePath}=?, ${Contact.columnCreatedAt}=?, ${Contact.columnUpdatedAt}=?, ${Contact.columnSyncStatus}=? WHERE ${Contact.columnId}=?',
         [
           contactToEdit.id,
           contactToEdit.name,
           contactToEdit.avatarUrl,
           contactToEdit.documentUrl,
-          contactToEdit.avatarPhonePath,
           contactToEdit.documentPhonePath,
           if (contactToEdit.createdAt == null) null else contactToEdit.createdAt!.toIso8601String(),
           if (contactToEdit.updatedAt == null) null else contactToEdit.updatedAt!.toIso8601String(),
@@ -198,13 +196,12 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
 
           if (hasEntry) {
             batch.rawUpdate(
-              'UPDATE ${Contact.tableName} SET ${Contact.columnId}=?, ${Contact.columnName}=?, ${Contact.columnAvatarUrl}=?, ${Contact.columnDocumentUrl}=?, ${Contact.columnAvatarPhonePath}=?, ${Contact.columnDocumentPhonePath}=?, ${Contact.columnCreatedAt}=?, ${Contact.columnUpdatedAt}=?, ${Contact.columnSyncStatus}=? WHERE ${Contact.columnId}=?',
+              'UPDATE ${Contact.tableName} SET ${Contact.columnId}=?, ${Contact.columnName}=?, ${Contact.columnAvatarUrl}=?, ${Contact.columnDocumentUrl}=?, ${Contact.columnDocumentPhonePath}=?, ${Contact.columnCreatedAt}=?, ${Contact.columnUpdatedAt}=?, ${Contact.columnSyncStatus}=? WHERE ${Contact.columnId}=?',
               [
                 contact.id,
                 contact.name,
                 contact.avatarUrl,
                 contact.documentUrl,
-                contact.avatarPhonePath,
                 contact.documentPhonePath,
                 if (contact.createdAt == null) null else contact.createdAt!.toIso8601String(),
                 if (contact.updatedAt == null) null else contact.updatedAt!.toIso8601String(),
@@ -214,13 +211,12 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
             );
           } else {
             batch.rawInsert(
-                'INSERT INTO ${Contact.tableName}(${Contact.columnId}, ${Contact.columnName}, ${Contact.columnAvatarUrl}, ${Contact.columnDocumentUrl}, ${Contact.columnAvatarPhonePath}, ${Contact.columnDocumentPhonePath}, ${Contact.columnCreatedAt}, ${Contact.columnUpdatedAt}, ${Contact.columnSyncStatus}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                'INSERT INTO ${Contact.tableName}(${Contact.columnId}, ${Contact.columnName}, ${Contact.columnAvatarUrl}, ${Contact.columnDocumentUrl}, ${Contact.columnDocumentPhonePath}, ${Contact.columnCreatedAt}, ${Contact.columnUpdatedAt}, ${Contact.columnSyncStatus}) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                 [
                   contact.id,
                   contact.name,
                   contact.avatarUrl,
                   contact.documentUrl,
-                  contact.avatarPhonePath,
                   contact.documentPhonePath,
                   if (contact.createdAt == null) null else contact.createdAt!.toIso8601String(),
                   if (contact.updatedAt == null) null else contact.updatedAt!.toIso8601String(),
@@ -230,13 +226,12 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
         }
 
         batch.rawUpdate(
-          'UPDATE ${Contact.tableName} SET ${Contact.columnId}=?, ${Contact.columnName}=?, ${Contact.columnAvatarUrl}=?, ${Contact.columnDocumentUrl}=?, ${Contact.columnAvatarPhonePath}=?, ${Contact.columnDocumentPhonePath}=?, ${Contact.columnCreatedAt}=?, ${Contact.columnUpdatedAt}=?, ${Contact.columnSyncStatus}=? WHERE ${Contact.columnId}=?',
+          'UPDATE ${Contact.tableName} SET ${Contact.columnId}=?, ${Contact.columnName}=?, ${Contact.columnAvatarUrl}=?, ${Contact.columnDocumentUrl}=?, ${Contact.columnDocumentPhonePath}=?, ${Contact.columnCreatedAt}=?, ${Contact.columnUpdatedAt}=?, ${Contact.columnSyncStatus}=? WHERE ${Contact.columnId}=?',
           [
             contact.id,
             contact.name,
             contact.avatarUrl,
             contact.documentUrl,
-            contact.avatarPhonePath,
             contact.documentPhonePath,
             if (contact.createdAt == null) null else contact.createdAt!.toIso8601String(),
             if (contact.updatedAt == null) null else contact.updatedAt!.toIso8601String(),

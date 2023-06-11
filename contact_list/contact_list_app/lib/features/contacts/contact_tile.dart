@@ -59,7 +59,7 @@ class _ContactTileState extends State<ContactTile> with AfterFirstFrameMixin, Co
           );
         },
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          CAvatar(widget.contact.avatarPhonePath),
+          CAvatar(widget.contact.avatarFile),
           const SizedBox(width: 4),
           Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(Strings.contactsName(name: widget.contact.name, syncStatus: widget.contact.syncStatus.name)),

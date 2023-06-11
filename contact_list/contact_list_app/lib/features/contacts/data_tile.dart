@@ -24,8 +24,6 @@ class DataTile extends StatelessWidget {
         const SizedBox(height: 4),
         CTextTile(title: 'documentUrl', text: contact.documentUrl),
         const SizedBox(height: 4),
-        CTextTile(title: 'avatarPhonePath', text: contact.avatarPhonePath ?? 'null'),
-        const SizedBox(height: 4),
         CTextTile(title: 'documentPhonePath', text: contact.documentPhonePath),
         const SizedBox(height: 4),
         CTextTile(title: 'createdAt', text: contact.createdAt?.toIso8601String() ?? 'null'),
@@ -33,6 +31,8 @@ class DataTile extends StatelessWidget {
         CTextTile(title: 'updatedAt', text: contact.updatedAt?.toIso8601String() ?? 'null'),
         const SizedBox(height: 4),
         CTextTile(title: 'syncStatus', text: contact.syncStatus.name),
+        const SizedBox(height: 4),
+        CTextTile(title: 'avatarFile', text: contact.avatarFile?.path ?? 'null'),
       ],
     ]);
   }
