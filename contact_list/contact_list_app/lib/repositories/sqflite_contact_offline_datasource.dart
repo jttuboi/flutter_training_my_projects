@@ -23,6 +23,18 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
   final Database _database;
   final FlutterSecureStorage _keyValueDatabase;
 
+  static const createTable = '''
+    CREATE TABLE ${Contact.tableName} (
+      ${Contact.columnId} TEXT PRIMARY KEY,
+      ${Contact.columnName} TEXT NOT NULL,
+      ${Contact.columnAvatarUrl} TEXT,
+      ${Contact.columnDocumentUrl} TEXT,
+      ${Contact.columnDocumentPhonePath} TEXT,
+      ${Contact.columnCreatedAt} TEXT NULL,
+      ${Contact.columnUpdatedAt} TEXT NULL,
+      ${Contact.columnSyncStatus} TEXT
+    )''';
+
   @override
   Future<Result<({List<Contact> contacts, Meta meta})>> getAll({bool perPage = true, int page = 0}) async {
     Logger.pContactOfflineDataSource('getAll', {'perPage': perPage, 'page': page});
@@ -55,7 +67,7 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
       final isLastPage = (page + 1) == totalPages;
 
       return Success((
-        contacts: entries.map<Contact>((query) => Contact.fromMap(query)).toList(),
+        contacts: entries.map<Contact>((query) => ContactExtension.fromMap(query)).toList(),
         meta: Meta(
           previousPage: page - 1,
           currentPage: page,
@@ -167,7 +179,7 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
         SyncStatus.synced.name,
       ]);
 
-      return Success(entries.map<Contact>((entry) => Contact.fromMap(entry)).toList());
+      return Success(entries.map<Contact>((entry) => ContactExtension.fromMap(entry)).toList());
     } catch (e, s) {
       return Fail(UnknownFailure(error: e, stackTrace: s));
     }
@@ -288,7 +300,7 @@ class SqfliteContactOfflineDataSource implements IContactOfflineDataSource {
   Future<void> printContacts({bool isShort = false}) async {
     final entries = await _database.rawQuery('SELECT * FROM ${Contact.tableName}');
     log('[');
-    for (final contact in entries.map<Contact>((entry) => Contact.fromMap(entry))) {
+    for (final contact in entries.map<Contact>((entry) => ContactExtension.fromMap(entry))) {
       log(isShort ? contact.toShortString() : contact.toString());
     }
 

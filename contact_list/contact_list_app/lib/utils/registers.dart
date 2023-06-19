@@ -4,7 +4,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../entities/contact.dart';
 import '../repositories/contact_offline_datasource.dart';
 import '../repositories/sqflite_contact_offline_datasource.dart';
 import '../services/connection_checker/connection_checker.dart';
@@ -36,17 +35,7 @@ Future<void> registers() async {
   if (!GetIt.I.isRegistered<Database>()) {
     final database = await openDatabase('database.db', version: 1, onCreate: (db, version) {
       db.batch()
-        ..execute('''
-                    CREATE TABLE ${Contact.tableName} (
-                      ${Contact.columnId} TEXT PRIMARY KEY,
-                      ${Contact.columnName} TEXT NOT NULL,
-                      ${Contact.columnAvatarUrl} TEXT,
-                      ${Contact.columnDocumentUrl} TEXT,
-                      ${Contact.columnDocumentPhonePath} TEXT,
-                      ${Contact.columnCreatedAt} TEXT NULL,
-                      ${Contact.columnUpdatedAt} TEXT NULL,
-                      ${Contact.columnSyncStatus} TEXT
-                  )''')
+        ..execute(SqfliteContactOfflineDataSource.createTable)
         ..commit();
     });
 

@@ -5,6 +5,16 @@ enum SyncStatus {
   removed,
   ;
 
+  bool get isSynced => this == SyncStatus.synced;
+
+  bool get isAdded => this == SyncStatus.added;
+
+  bool get isUpdated => this == SyncStatus.updated;
+
+  bool get isRemoved => this == SyncStatus.removed;
+}
+
+extension SyncStatusExtension on SyncStatus {
   static SyncStatus fromString(String syncStatus) {
     if (SyncStatus.synced.name == syncStatus) {
       return SyncStatus.synced;
@@ -17,12 +27,4 @@ enum SyncStatus {
     }
     return SyncStatus.synced;
   }
-
-  bool get isSynced => this == SyncStatus.synced;
-
-  bool get isAdded => this == SyncStatus.added;
-
-  bool get isUpdated => this == SyncStatus.updated;
-
-  bool get isRemoved => this == SyncStatus.removed;
 }

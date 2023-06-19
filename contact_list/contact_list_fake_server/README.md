@@ -70,10 +70,6 @@ for markdown:
 
 https://www.tablesgenerator.com/markdown_tables
 
-for documentation:
-
-https://medium.com/codex/flutter-dart-documentation-791371ff2e0f
-
 .
 
 .

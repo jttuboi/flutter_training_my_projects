@@ -17,11 +17,17 @@ class Meta with EquatableMixin {
   final int totalEntries;
 
   @override
-  List<Object?> get props => [nextPage, totalPages];
+  List<Object?> get props => [previousPage, currentPage, nextPage, totalPages, totalEntries];
 
   @override
   bool? get stringify => true;
 
+  bool get isFirstPage => previousPage == -1;
+
+  bool get isLastPage => nextPage == -1;
+}
+
+extension MetaExtension on Meta {
   static Meta fromMap(Map<String, dynamic> map) {
     return Meta(
       previousPage: map['previous_page'] ?? -1,
@@ -31,8 +37,4 @@ class Meta with EquatableMixin {
       totalEntries: map['total_entries'] ?? 0,
     );
   }
-
-  bool get isFirstPage => previousPage == -1;
-
-  bool get isLastPage => nextPage == -1;
 }

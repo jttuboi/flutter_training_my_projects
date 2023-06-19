@@ -41,7 +41,7 @@ class DioContactOnlineDataSource implements IContactOnlineDataSource {
         }
 
         return Success(
-          maps.map<Contact>((map) => Contact.fromMap(map)).toList(),
+          maps.map<Contact>((map) => ContactExtension.fromMap(map)).toList(),
         );
       }
     });
@@ -77,11 +77,37 @@ class DioContactOnlineDataSource implements IContactOnlineDataSource {
         }
 
         return Success(
-          maps.map<Contact>((map) => Contact.fromMap(map)).toList(),
+          maps.map<Contact>((map) => ContactExtension.fromMap(map)).toList(),
         );
       }
     });
   }
+
+  Future<Result<R>> _tryCatch<R>(Future<Result<R>?> Function() runContent, {Future<Result<R>?> Function(DioError error)? runDioError}) async {
+    try {
+      final result = await runContent();
+      if (result != null) {
+        return result;
+      }
+    } on TimeoutException {
+      return const Fail(TimeoutFailure());
+    } on SocketException {
+      return const Fail(InternetUnavailableFailure());
+    } on HttpException {
+      return const Fail(NoServiceFoundFailure());
+    } on FormatException {
+      return const Fail(InvalidFormatFailure());
+    } on DioError catch (error) {
+      if (runDioError != null) {
+        final resultError = await runDioError(error);
+        if (resultError != null) {
+          return resultError;
+        }
+      }
+    }
+    return const Fail(UnknownFailure());
+  }
+}
 
   // @override
   // Future<Result<({List<Contact> contacts, Meta meta})>> getAll({int page = 0}) async {
@@ -207,29 +233,3 @@ class DioContactOnlineDataSource implements IContactOnlineDataSource {
   //     }
   //   });
   // }
-
-  Future<Result<R>> _tryCatch<R>(Future<Result<R>?> Function() runContent, {Future<Result<R>?> Function(DioError error)? runDioError}) async {
-    try {
-      final result = await runContent();
-      if (result != null) {
-        return result;
-      }
-    } on TimeoutException {
-      return const Fail(TimeoutFailure());
-    } on SocketException {
-      return const Fail(InternetUnavailableFailure());
-    } on HttpException {
-      return const Fail(NoServiceFoundFailure());
-    } on FormatException {
-      return const Fail(InvalidFormatFailure());
-    } on DioError catch (error) {
-      if (runDioError != null) {
-        final resultError = await runDioError(error);
-        if (resultError != null) {
-          return resultError;
-        }
-      }
-    }
-    return const Fail(UnknownFailure());
-  }
-}

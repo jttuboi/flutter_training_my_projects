@@ -1,6 +1,8 @@
 class Strings {
   const Strings._();
 
+  static const title = 'Contact List';
+
   static const contacts = 'Contacts';
   static const contactsDesynchronized = 'Os contatos podem estar desincronizados, para atualizar conecte na internet.';
   static String contactsName({required String name, required String syncStatus}) {
