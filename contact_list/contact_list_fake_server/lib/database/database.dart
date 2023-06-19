@@ -1,4 +1,4 @@
-import '../entities/contact.dart';
+import '../../entities/entities.dart';
 
 final contactsDB = <Contact>[
   // Contact(

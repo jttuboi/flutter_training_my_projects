@@ -1,10 +1,8 @@
-// ignore_for_file: avoid_print
-
 import 'dart:developer';
 
 import 'package:shelf/shelf.dart';
 
-import '../database/database.dart';
+import '../../../database/database.dart';
 
 Future<void> printRequest(Request request) async {
   log('=== request =====');

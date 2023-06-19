@@ -4,12 +4,8 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 import '../database/database.dart';
-import '../entities/contact.dart';
-import '../entities/error.dart';
-import '../entities/response_type.dart';
-import '../entities/sync_status.dart';
-import 'print.dart';
-import 'settings.dart';
+import '../entities/entities.dart';
+import 'utils.dart';
 
 final router = Router()
 

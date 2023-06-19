@@ -1,11 +1,9 @@
 import 'dart:developer';
 import 'dart:io' as io;
 
+import 'package:offline_first_fake_server/utils/utils.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
-
-import 'src/utils/router.dart';
-import 'src/utils/settings.dart';
 
 void main(List<String> args) async {
   final ip = io.InternetAddress.anyIPv4; // Use any available host or container IP (usually `0.0.0.0`).

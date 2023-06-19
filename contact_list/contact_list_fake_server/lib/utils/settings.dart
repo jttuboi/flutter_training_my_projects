@@ -1,6 +1,6 @@
 import 'package:shelf/shelf.dart';
 
-import '../entities/response_type.dart';
+import '../entities/entities.dart';
 
 final defaultHeaders = {
   'accept': '*/*', // default = '*/*'
