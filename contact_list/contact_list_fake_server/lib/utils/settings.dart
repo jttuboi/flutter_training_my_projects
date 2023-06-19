@@ -14,4 +14,4 @@ Handler addBasePathUrl(Handler innerHandler) {
   };
 }
 
-ResponseType responseTypeToShow = ResponseType.xUseDefinedInMethod; // default = ResponseType.xUseDefinedInMethod
+ResponseType responseTypeToShow = ResponseType.useDefinedInMethod; // default = ResponseType.xUseDefinedInMethod

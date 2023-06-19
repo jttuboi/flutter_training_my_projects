@@ -1,10 +1,10 @@
 enum ResponseType {
-  xUseDefinedInMethod(90000),
-  x200ok(200),
-  x201created(201),
-  x202accepted(202),
-  x401unautorized(401),
-  x404notFound(404),
+  useDefinedInMethod(90000),
+  c200ok(200),
+  c201created(201),
+  c202accepted(202),
+  c401unautorized(401),
+  c404notFound(404),
   ;
 
   const ResponseType(this.code);

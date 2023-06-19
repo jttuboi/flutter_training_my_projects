@@ -176,7 +176,7 @@ final router = Router()
     //     final newContact = Contact(id: const Uuid().v4(), name: name, avatarUrl: avatarUrl, documentUrl: documentUrl);
     //     contacts.add(newContact);
 
-    //     return _response(responseTypeToShow: ResponseType.x201created, data: newContact.toEntityMap());
+    //     return _response(responseTypeToShow: ResponseType.c201created, data: newContact.toEntityMap());
     //   }
 
     //   return _responseNotFoundErrors([
@@ -310,37 +310,37 @@ final router = Router()
     // })
     ;
 
-Response _response({ResponseType responseTypeToShow = ResponseType.x200ok, Map<String, dynamic> data = const {}}) {
-  assert(responseTypeToShow != ResponseType.xUseDefinedInMethod, 'responseTypeToShow must not be _useDefinedInMethod.');
-  final responseType = (responseTypeToShow == ResponseType.xUseDefinedInMethod) ? responseTypeToShow : responseTypeToShow;
+Response _response({ResponseType responseTypeToShow = ResponseType.c200ok, Map<String, dynamic> data = const {}}) {
+  assert(responseTypeToShow != ResponseType.useDefinedInMethod, 'responseTypeToShow must not be _useDefinedInMethod.');
+  final responseType = (responseTypeToShow == ResponseType.useDefinedInMethod) ? responseTypeToShow : responseTypeToShow;
 
   var response = Response.internalServerError();
   var responseToPrint = Response.internalServerError();
 
   switch (responseType) {
-    case ResponseType.x200ok:
+    case ResponseType.c200ok:
       assert(data != const {}, 'data must not be empty.');
       response = Response.ok(jsonEncode(data), headers: defaultHeaders);
       responseToPrint = Response.ok(jsonEncode(data), headers: defaultHeaders);
       break;
-    case ResponseType.x201created:
+    case ResponseType.c201created:
       assert(data != const {}, 'data must not be empty.');
-      response = Response(ResponseType.x201created.code, body: jsonEncode(data), headers: defaultHeaders);
-      responseToPrint = Response(ResponseType.x201created.code, body: jsonEncode(data), headers: defaultHeaders);
+      response = Response(ResponseType.c201created.code, body: jsonEncode(data), headers: defaultHeaders);
+      responseToPrint = Response(ResponseType.c201created.code, body: jsonEncode(data), headers: defaultHeaders);
       break;
-    case ResponseType.x202accepted:
-      response = Response(ResponseType.x202accepted.code, body: jsonEncode(data), headers: defaultHeaders);
-      responseToPrint = Response(ResponseType.x202accepted.code, body: jsonEncode(data), headers: defaultHeaders);
+    case ResponseType.c202accepted:
+      response = Response(ResponseType.c202accepted.code, body: jsonEncode(data), headers: defaultHeaders);
+      responseToPrint = Response(ResponseType.c202accepted.code, body: jsonEncode(data), headers: defaultHeaders);
       break;
-    case ResponseType.x401unautorized:
+    case ResponseType.c401unautorized:
       response = Response.unauthorized(null);
       responseToPrint = Response.unauthorized(null);
       break;
-    case ResponseType.x404notFound:
+    case ResponseType.c404notFound:
       response = Response.notFound(null);
       responseToPrint = Response.notFound(null);
       break;
-    case ResponseType.xUseDefinedInMethod:
+    case ResponseType.useDefinedInMethod:
       response = Response.internalServerError();
       responseToPrint = Response.internalServerError();
       break;
