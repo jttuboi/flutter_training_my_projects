@@ -72,7 +72,16 @@ class ContactRepository {
           );
         }
 
-        return (await _onlineDataSource.synchronize(contactsDesynchronized)).result(
+        final files = <String, File>{};
+        for (final contactDesynchronized in contactsDesynchronized) {
+          final imageKey = contactDesynchronized.id;
+          final fileInfo = await DefaultCacheManager().getFileFromCache(imageKey);
+          if (fileInfo != null) {
+            files[imageKey] = fileInfo.file;
+          }
+        }
+
+        return (await _onlineDataSource.synchronize(contactsDesynchronized, files)).result(
           (contactsSynchronized) async {
             return (await _offlineDataSource.synchronizeList(contactsSynchronized)).result(
               (_) async => const SuccessOk(),

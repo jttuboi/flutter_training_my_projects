@@ -36,36 +36,6 @@ class Contact with EquatableMixin {
   @override
   bool? get stringify => true;
 
-  static Contact fromMap(Map<String, dynamic> map) {
-    return Contact(
-      id: map[columnId] ?? '',
-      name: map[columnName] ?? '',
-      avatarUrl: map[columnAvatarUrl] ?? '',
-      documentUrl: map[columnDocumentUrl] ?? '',
-      createdAt: DateTime.tryParse(map[columnCreatedAt] ?? ''),
-      updatedAt: DateTime.tryParse(map[columnUpdatedAt] ?? ''),
-      syncStatus: SyncStatus.fromString(map[columnSyncStatus]),
-    );
-  }
-
-  Map<String, dynamic> toEntityMap() {
-    return {
-      'entity': toMap(),
-    };
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      columnId: id,
-      columnName: name,
-      columnAvatarUrl: avatarUrl,
-      columnDocumentUrl: documentUrl,
-      columnCreatedAt: createdAt?.toIso8601String(),
-      columnUpdatedAt: updatedAt?.toIso8601String(),
-      columnSyncStatus: syncStatus.name,
-    };
-  }
-
   static const tableName = 'contact';
   static const columnId = 'id';
   static const columnName = 'name';
@@ -120,8 +90,40 @@ class Contact with EquatableMixin {
         'dUrl: ${documentUrl.split('/').last}, '
         'crAt: ${createdAt?.toShortString()}, '
         'upAt: ${updatedAt?.toShortString()}, '
-        'sySt: ${syncStatus.name}'
+        'sySt: ${syncStatus.name}, '
         ')';
+  }
+}
+
+extension ContactExtension on Contact {
+  static Contact fromMap(Map<String, dynamic> map) {
+    return Contact(
+      id: map[Contact.columnId] ?? '',
+      name: map[Contact.columnName] ?? '',
+      avatarUrl: map[Contact.columnAvatarUrl] ?? '',
+      documentUrl: map[Contact.columnDocumentUrl] ?? '',
+      createdAt: DateTime.tryParse(map[Contact.columnCreatedAt] ?? ''),
+      updatedAt: DateTime.tryParse(map[Contact.columnUpdatedAt] ?? ''),
+      syncStatus: SyncStatus.fromString(map[Contact.columnSyncStatus]),
+    );
+  }
+
+  Map<String, dynamic> toEntityMap() {
+    return {
+      'entity': toMap(),
+    };
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      Contact.columnId: id,
+      Contact.columnName: name,
+      Contact.columnAvatarUrl: avatarUrl,
+      Contact.columnDocumentUrl: documentUrl,
+      Contact.columnCreatedAt: createdAt?.toIso8601String(),
+      Contact.columnUpdatedAt: updatedAt?.toIso8601String(),
+      Contact.columnSyncStatus: syncStatus.name,
+    };
   }
 }
 
@@ -137,7 +139,7 @@ extension ContactsExtension on List<Contact> {
   static List<Contact> fromEntitiesMap(Map<String, dynamic> map) {
     final maps = map['entities'] as List;
 
-    return maps.map<Contact>((map) => Contact.fromMap(map)).toList();
+    return maps.map<Contact>((map) => ContactExtension.fromMap(map)).toList();
   }
 
   Map<String, dynamic> toEntitiesMap() {

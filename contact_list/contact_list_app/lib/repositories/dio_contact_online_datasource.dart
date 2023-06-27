@@ -27,11 +27,28 @@ class DioContactOnlineDataSource implements IContactOnlineDataSource {
   final Dio _dio;
 
   @override
-  Future<Result<List<Contact>>> synchronize(List<Contact> contactsDesynchronized) {
+  Future<Result<List<Contact>>> synchronize(List<Contact> contactsDesynchronized, Map<String, File> files) {
     Logger.pContactOnlineDataSource('synchronize', {'contactsDesynchronized': contactsDesynchronized});
 
     return _tryCatch<List<Contact>>(() async {
-      final response = await _dio.put('/contacts', data: contactsDesynchronized.toEntitiesMap());
+      //TODO tem um erro aqui, quando adiciona e nao existe nenhum avatar, dá nullpointer
+      final formData = FormData.fromMap({
+        'entities': contactsDesynchronized.map<Map<String, dynamic>>((contact) => contact.toMap()).toList(),
+        'files': contactsDesynchronized
+            .map<MultipartFile>((contact) => MultipartFile.fromBytes(
+                      files[contact.id]!.readAsBytesSync(),
+                      filename: contact.documentPhonePath.split('/').last,
+                    )
+                // MultipartFile.fromFileSync(
+                //       contact.documentPhonePath,
+                //       filename: contact.documentPhonePath.split('/').last,
+                //     ),
+                )
+            .toList(),
+      });
+
+      final response = await _dio.put('/contacts', options: Options(contentType: Headers.multipartFormDataContentType), data: formData);
+      // contactsDesynchronized.toEntitiesMap());
 
       if (response.statusCode.is200ok) {
         final maps = response.data['entities'] as List;

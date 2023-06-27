@@ -94,7 +94,7 @@ class Contact with EquatableMixin {
         'createdAt: $createdAt, '
         'updatedAt: $updatedAt, '
         'syncStatus: $syncStatus, '
-        'avatarPhonePath: $avatarFile'
+        'avatarFile: $avatarFile'
         ')';
   }
 
@@ -148,9 +148,10 @@ extension ContactsExtension on List<Contact> {
     return maps.map<Contact>((map) => ContactExtension.fromMap(map)).toList();
   }
 
-  Map<String, dynamic> toEntitiesMap() {
+  Map<String, dynamic> toEntitiesMap(Map<String, File> files) {
     return {
       'entities': map<Map<String, dynamic>>((contact) => contact.toMap()).toList(),
+      'files': null,
     };
   }
 

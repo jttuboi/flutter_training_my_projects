@@ -1,8 +1,10 @@
+import 'dart:io';
+
 import '../entities/contact.dart';
 import '../services/result/result.dart';
 
 abstract interface class IContactOnlineDataSource {
-  Future<Result<List<Contact>>> synchronize(List<Contact> contactsDesynchronized);
+  Future<Result<List<Contact>>> synchronize(List<Contact> contactsDesynchronized, Map<String, File> files);
 
   Future<Result<bool>> hasDataToSynchronize();
 
