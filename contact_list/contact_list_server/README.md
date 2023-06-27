@@ -1,4 +1,4 @@
-# Contact List Fake Server
+# Contact List Server
 
 ## Rest API
 

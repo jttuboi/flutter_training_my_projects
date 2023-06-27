@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'dart:io' as io;
 
-import 'package:offline_first_fake_server/utils/utils.dart';
+import 'package:offline_first_server/utils/utils.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 
