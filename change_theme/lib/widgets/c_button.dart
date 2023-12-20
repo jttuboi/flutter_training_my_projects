@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:teste_tema_independente/themes/theme_styles.dart';
 
-import 'utils.dart';
+import '../utils.dart';
 
 class CButton extends StatelessWidget {
   const CButton(this.data, {this.style = const CButtonStylePrimary(), this.isEnabled = true, this.onPressed = function, super.key});

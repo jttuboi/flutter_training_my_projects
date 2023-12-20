@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
-import 'package:teste_tema_independente/c_button.dart';
 import 'package:teste_tema_independente/themes/theme_styles.dart';
 import 'package:teste_tema_independente/themes/theme_styles1.dart';
 import 'package:teste_tema_independente/themes/theme_styles2.dart';
+import 'package:teste_tema_independente/widgets/c_button.dart';
+import 'package:teste_tema_independente/widgets/c_dialog.dart';
 
 void main() {
   if (!GetIt.I.isRegistered<ThemeController>()) {
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
       child: Consumer<ThemeController>(
         builder: (_, themeController, __) {
           return MaterialApp(
+            navigatorKey: GM.navigatorKey,
             theme: themeController.themeSelected,
             darkTheme: themeController.darkThemeSelected,
             themeMode: themeController.themeModeSelected,
@@ -97,6 +99,15 @@ class HomePage extends StatelessWidget {
           const Text('tertiary (extendendo do CButtonStylePrimary)'),
           //
           CButton(const CButtonData('texto'), style: const CButtonStyleTertiary(), onPressed: () {}),
+
+          //
+          TextButton(
+              onPressed: () {
+                GM.showDialog(DialogData(), builder: (_) {
+                  return CDialog(CDialogData(title: 'titulo', text: 'texto'));
+                });
+              },
+              child: const Text('abre dialog sem context')),
         ],
       ),
     );
